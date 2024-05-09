@@ -1,2 +1,3 @@
-# ms-arch-tasks
-Домашние задания по курсу Microservice Architecture | OTUS
+# Домашние задания по курсу Microservice Architecture | OTUS
+
+## [Паттерны декомпозиции микросервисов](01_decompose/README.md)
