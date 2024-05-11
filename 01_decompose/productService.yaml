@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Product service
+  description: Управление каталогом товаров
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/product-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: system_operation
+    description: API, доступный пользователям
+  - name: internal
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /products:
+    post:
+      tags:
+        - system_operation
+      summary: Поиск товаров в каталоге
+      description: Поиск товаров в каталоге
+      operationId: searchProducts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductQueryFilterDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+  /products/categories:
+    get:
+      tags:
+        - system_operation
+      summary: Получить список категорий товаров
+      description: Получить список категорий товаров
+      operationId: getProductCategories
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+  /products/{id}:
+    get:
+      tags:
+        - system_operation
+      summary: Получение потребительской информации о товаре
+      description: Получение потребительской информации о товаре
+      operationId: getProduct
+      parameters:
+        - name: id
+          description: Идентификатор товара
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+  /products/{id}/delivery-attributes:
+    get:
+      tags:
+        - internal
+      summary: Получение транспортных свойств товаров
+      description: Получение свойств товаров для формирования запроса на доставку транспортной компанией
+      operationId: getDeliveryAttributes
+      parameters:
+        - name: id
+          description: Идентификатор товара
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDeliveryAttributesDto'
+components:
+  schemas:
+    ProductQueryFilterDto:
+      description: Фильтр поиска товаров
+      type: object
+      properties:
+        text_query:
+          type: string
+          description: Строка поиска по названию
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryDto'
+        min_cost:
+          type: number
+          description: Минимальная цена
+        max_cost:
+          type: number
+          description: Максимальная цена
+        sort_order:
+          type: string
+          description: Сортировка
+          enum:
+            - PRICE_DESC
+            - PRICE_ASC
+            - POPULAR_FIRST
+            - DEFAULT
+          default: DEFAULT
+    CategoryDto:
+      description: Категория товара
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор катагории
+        name:
+          type: string
+          description: Название категории
+    ProductDto:
+      description: Продукт
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        category_id:
+          type: string
+          format: uuid
+          description: Идентификатор категории
+        name:
+          type: string
+          description: Название
+        description:
+          type: string
+          description: Описание товара
+        cost:
+          type: number
+          description: Цена товара, рублей
+        remaining_stock:
+          type: integer
+          description: Остаток на складе
+        image_paths:
+          type: array
+          items:
+            type: string
+            description: URL изображения
+    ProductDeliveryAttributesDto:
+      description: Транспортные свойства товара
+      type: object
+      properties:
+        weight_g:
+          type: integer
+          description: Вес груза, граммы
+        volume_dm3:
+          type: integer
+          description: Объем, литры
+        max_length_sm:
+          type: integer
+          description: Максимальный линейный размер, см
