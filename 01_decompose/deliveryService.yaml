@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Delivery service
+  description: Доставка заказа покупателям
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/delivery-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: internal
+    description: API для межкомпонентного взаимодействия
+  - name: external
+    description: API для интеграции с внешними системами
+paths:
+  /delivery:
+    post:
+      tags:
+        - internal
+      summary: Создать заявку на доставку.
+      description: Создать заявку на готовый к отправке со склада товар.
+      operationId: newDelivery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+      responses:
+        '201':
+          description: Заявка на доставку создана.
+  /delivery/sent:
+    patch:
+      tags:
+        - internal
+      summary: Подтвердить передачу товаров заказа в доставку курьеру транспортной компании.
+      description: Подтвердить передачу товаров заказа в доставку курьеру транспортной компании.
+      operationId: orderHandover
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+      responses:
+        '204':
+          description: Информация о передачи заказа в доставку принята.
+  /delivery/confirmed:
+    patch:
+      tags:
+        - external
+      summary: Подтвердить получение заказа покупателем.
+      description: Подтвердить получение доставленного заказа покупателем.
+      operationId: deliveryConfirmed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+      responses:
+        '204':
+          description: Информация о получении заказа принята.
+components:
+  schemas:
+    DeliveryDto:
+      description: Доставка заказа транспортной компанией.
+      type: object
+      required:
+        - order_id
+      properties:
+        order_id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа.
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemDto'
+        delivery_address:
+          $ref: '#/components/schemas/DeliveryAddressDto'
+    LineItemDto:
+      description: Товарная позиция заказа к отправке.
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество товара
+          default: 1
+    DeliveryAddressDto:
+      description: Адрес доставки
+      type: object
+      properties:
+        as_text:
+          type: string
+          description: Текстовое представление адреса

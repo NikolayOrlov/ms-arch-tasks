@@ -34,5 +34,5 @@
 - [Cart service REST API](cartService.yaml)
 - [Checkout service REST API](checkoutService.yaml)
 - [Order service REST API](orderService.yaml)
-
-
+- [Stock service REST API](stockService.yaml)
+- [Delivery service REST API](deliveryService.yaml)

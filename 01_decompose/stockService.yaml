@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Stock service
+  description: Управление остатками товара на складе
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/stock-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: internal
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /reserve:
+    post:
+      tags:
+        - internal
+      summary: Зарезервировать товар на складе.
+      description: Зарезервировать товар на складе при формировании покупателем корзины или оформлении заказа.
+            Зарезервированный при формировании покупателем корзины товар, будет находиться в резерве определенное время,
+            после чего будет возвращен в доступные остатки.
+            Зарезервированный при оформлении заказа товар, будет находиться в резерве до снятия резерва или передачи его в доставку.
+      operationId: reserveProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveDto'
+      responses:
+        '201':
+          description: Товар зарезервирован.
+        '404':
+          description: Необходимый для резервирования товар на складе отсутствует.
+    patch:
+      tags:
+        - internal
+      summary: Снять резерв на товар.
+      description: Снять резерв на товар при не удавшемся оформлении заказа.
+      operationId: cancelProductReserveForOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveDto'
+      responses:
+        '204':
+          description: Резерв на товар снят.
+
+components:
+  schemas:
+    ReserveDto:
+      description: Запрос оформления заказа
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Идентификатор резервируемого товара.
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество единиц резервируемого товара.
+          default: 1
+        cart_id:
+          type: string
+          format: uuid
+          description: Идентификатор корзины, для которой сформирован/будет сформирован резерв.
+        order_id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа, для которого будет/был сформирован резерв.
+                При формировании резерва для заказа, необходимо указать идентификатор корзины,
+                для которой этот товар был ранее зарезервирован.
+                При снятии резерва - единственный необходимый параметр запроса.

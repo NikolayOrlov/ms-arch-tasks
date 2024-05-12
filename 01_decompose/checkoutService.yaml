@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   version: 1.0.0
   title: Checkout service
-  description: Выполнение заказа
+  description: Подтверждение заказа
 
 servers:
   - url: '{schema}://norlov.msarch.otus.com/api/checkout-service'

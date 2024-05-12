@@ -61,9 +61,9 @@ paths:
     get:
       tags:
         - system_operation
-      summary: Получение пользователем информации о заказе.
-      description: Получение пользователем информации о заказе.
-      operationId: getCustomerOrder
+      summary: Получение информации о заказе.
+      description: Получение информации о заказе. Кроме покупателя информация о заказе доступна работникам склада.
+      operationId: getOrder
       parameters:
         - name: id
           description: Идентификатор заказа
