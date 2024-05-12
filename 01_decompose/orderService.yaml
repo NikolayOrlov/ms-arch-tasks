@@ -116,7 +116,7 @@ components:
           description: Идентификатор заказа
         status:
           $ref: '#/components/schemas/OrderStatusDto'
-        line_items:  
+        line_items:
           type: array
           items:
             $ref: '#/components/schemas/LineItemDto'
@@ -127,6 +127,8 @@ components:
           type: string
           format: date-time
           description: Оплачен
+        delivery_address:
+          $ref: '#/components/schemas/DeliveryAddressDto'
     OrderStatusDto:
       description: Статус заказа |
         `CHARGE_PENDING` - Заказ ожидает оплату;
@@ -161,3 +163,10 @@ components:
         price:
           type: number
           description: Цена товарной позиции, рублей
+    DeliveryAddressDto:
+      description: Адрес доставки
+      type: object
+      properties:
+        as_text:
+          type: string
+          description: Текстовое представление адреса

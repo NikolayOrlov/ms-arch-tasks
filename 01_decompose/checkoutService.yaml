@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Checkout service
+  description: Выполнение заказа
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/checkout-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: system_operation
+    description: API, доступный пользователям
+  - name: external
+    description: API для интеграции с внешними системами
+
+paths:
+  /checkout:
+    post:
+      tags:
+        - system_operation
+      summary: Оформить заказ.
+      description: Оформить заказ.
+      operationId: checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutDto'
+      responses:
+        '200':
+          description: Начато оформление заказа
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_system_ref:
+                    type: string
+                    format: url
+                    description: Ссылка для выполнения платежа в платежной системе
+                  payment:
+                    $ref: '#/components/schemas/PaymentDto'
+  /payment/{id}/confirmation:
+    post:
+      tags:
+        - external
+      summary: Подтвердить выполнение платежа по заказу.
+      description: Подтвердить выполнение платежа по заказу.
+      operationId: confirmPayment
+      parameters:
+        - name: id
+          description: Идентификатор платежа
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmationDto'
+      responses:
+        '200':
+          description: Подтверждение принято
+components:
+  schemas:
+    CheckoutDto:
+      description: Запрос оформления заказа
+      type: object
+      properties:
+        payment_way:
+          $ref: '#/components/schemas/PaymentWayDto'
+        delivery_address:
+          $ref: '#/components/schemas/DeliveryAddressDto'
+    PaymentWayDto:
+      description: Способ оплаты
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - CARD
+    DeliveryAddressDto:
+      description: Адрес доставки
+      type: object
+      properties:
+        as_text:
+          type: string
+          description: Текстовое представление адреса
+    PaymentDto:
+      description: Информация об оплате заказа
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор платежа
+        status:
+          $ref: '#/components/schemas/PaymentStatusDto'
+        payment_way:
+          $ref: '#/components/schemas/PaymentWayDto'
+    PaymentStatusDto:
+      description: Статус платежа
+      type: string
+      enum:
+        - PENDING
+        - DONE
+        - FAILED
+    PaymentConfirmationDto:
+      description: Подтверждение платежа
+      type: object
+      properties:
+        payment_status:
+          type: string
+          enum:
+            - PROCESSED
+            - FAILED
