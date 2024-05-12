@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Order service
+  description: Выполнение заказа
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/order-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: system_operation
+    description: API, доступный пользователям
+  - name: internal
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /orders:
+    get:
+      tags:
+        - system_operation
+      summary: Получение пользователем информации о своих заказах.
+      description: Получение пользователем информации о своих заказах.
+      operationId: getCustomerOrders
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+    post:
+      tags:
+        - internal
+      summary: Создание заказа.
+      description: Создание заказа в статусе CHARGE_PENDING.
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDto'
+      responses:
+        '201':
+          description: Создан заказ в статусе CHARGE_PENDING.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Идентификатор заказа
+                format: uuid
+
+  /orders/{id}:
+    get:
+      tags:
+        - system_operation
+      summary: Получение пользователем информации о заказе.
+      description: Получение пользователем информации о заказе.
+      operationId: getCustomerOrder
+      parameters:
+        - name: id
+          description: Идентификатор заказа
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+  /orders/{id}/status:
+    patch:
+      tags:
+        - internal
+      summary: Установка статуса заказа в процессе обработки.
+      description: Установка статуса заказа в процессе обработки.
+      operationId: updateOrderStatus
+      parameters:
+        - name: id
+          description: Идентификатор заказа
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderStatusDto'
+      responses:
+        '204':
+          description: Статус заказа установлен.
+
+components:
+  schemas:
+    OrderDto:
+      description: Заказ
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа
+        status:
+          $ref: '#/components/schemas/OrderStatusDto'
+        line_items:  
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemDto'
+        price:
+          type: number
+          description: Цена заказа
+        date:
+          type: string
+          format: date-time
+          description: Оплачен
+    OrderStatusDto:
+      description: Статус заказа |
+        `CHARGE_PENDING` - Заказ ожидает оплату;
+        `CHARGED` - Получено подтвеждение оплаты заказа;
+        `FAILED` - Платеж не подтверждён;
+        `READY_FOR_DELIVERY` - Заказ готов к отправке;
+        `SENT` - Заказ передан в доставку транспортной компанией;
+        `DELIVERED` - Заказ доставлен покупателю.
+      type: string
+      enum:
+        - CHARGE_PENDING
+        - CHARGED
+        - FAILED
+        - READY_FOR_DELIVERY
+        - SENT
+        - DELIVERED
+    LineItemDto:
+      description: Товарная позиция заказа
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество товара
+          default: 1
+        price:
+          type: number
+          description: Цена товарной позиции, рублей

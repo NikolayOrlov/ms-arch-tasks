@@ -30,3 +30,7 @@
 ### Контракты взаимодействия компонентов
 
 - [Product service REST API](productService.yaml)
+- [Cart service REST API](cartService.yaml)
+- [Order service REST API](orderService.yaml)
+
+
