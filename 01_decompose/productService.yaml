@@ -78,9 +78,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductDto'
+                $ref: '#/components/schemas/ProductDto'
   /products/{id}/delivery-attributes:
     get:
       tags:
@@ -109,13 +107,19 @@ components:
       description: Фильтр поиска товаров
       type: object
       properties:
+        ids:
+          type: array
+          description: Идентификаторы товаров
+          items:
+            type: string
+            format: uuid
         text_query:
           type: string
           description: Строка поиска по названию
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/CategoryDto'
+        category_id:
+          type: string
+          format: uuid
+          description: Идентификатор категории
         min_cost:
           type: number
           description: Минимальная цена
@@ -138,7 +142,7 @@ components:
         id:
           type: string
           format: uuid
-          description: Идентификатор катагории
+          description: Идентификатор категории
         name:
           type: string
           description: Название категории
