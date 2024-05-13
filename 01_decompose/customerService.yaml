@@ -1,0 +1,155 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Customer service
+  description: Идентификация (регистрация, аутентификация) покупателя
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/cusomer-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: system_operation
+    description: API, доступный пользователям
+  - name: internal
+    description: API для межкомпонентного взаимодействия
+paths:
+  /token:
+    post:
+      tags:
+        - system_operation
+      summary: Получить JWT токен.
+      description: Получить JWT токен пользовательской сессии.
+        Если предоставлен заголовок Authorization - выполнить аутентификацию и вернуть в токене customer_id покупателя.
+        Если заголовок Authorization не предоставлен - сгенерировать и вернуть в токене уникальный session_id.
+      security:
+        - BasicAuth: []
+      operationId: createSessionToken
+      responses:
+        '200':
+          description: JWT токен.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: JWT token
+  /customer:
+    post:
+      tags:
+        - system_operation
+      summary: Регистрация покупателя.
+      description: Зарегистрировать пользователя и сохранить контактную информацию.
+      operationId: newCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationDto'
+      responses:
+        '201':
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                type: string
+                description: JWT token
+  /customer/email-confirm:
+    get:
+      tags:
+        - system_operation
+      summary: Подтверждение email покупателя.
+      description: Подтверждение email покупателя в процессе регистрации.
+      operationId: customerEmailConfirm
+      parameters:
+        - name: token
+          description: Идентификатор подтверждения
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: email подтвержден
+  /customer/{id}/notification-profile:
+    get:
+      tags:
+        - internal
+      summary: Получить контактную информацию покупателя.
+      description: Получить контактную информацию покупателя.
+      security:
+        - BearerAuth: []
+      operationId: getNotificationProfile
+      parameters:
+        - name: id
+          description: Идентификатор покупателя
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerNotificationProfileDto'
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    RegistrationDto:
+      description: Форма регистрации
+      type: object
+      properties:
+        login:
+          type: string
+          description: Логин
+        password:
+          type: string
+          description: Пароль
+        name:
+          type: string
+          description: ФИО
+        email:
+          type: string
+          format: email
+          description: e-mail покупателя.
+        phone:
+          type: string
+          description: Номер телефона покупателя.
+        preferred_notification_way:
+          type: string
+          enum:
+            - SMS
+            - EMAIL
+          description: Предпочтительный способ уведомления.
+    CustomerNotificationProfileDto:
+      description: Контактная информация покупателя.
+      type: object
+      properties:
+        name:
+          type: string
+          description: ФИО
+        email:
+          type: string
+          format: email
+          description: e-mail покупателя.
+        phone:
+          type: string
+          description: Номер телефона покупателя.
+        preferred_notification_way:
+          type: string
+          enum:
+            - SMS
+            - EMAIL
+          description: Предпочтительный способ уведомления.

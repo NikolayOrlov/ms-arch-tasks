@@ -1,0 +1,63 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Notification service
+  description: Уведомление покупателей о процессе выполнения заказа
+
+servers:
+  - url: '{schema}://norlov.msarch.otus.com/api/notification-service'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: internal
+    description: API для межкомпонентного взаимодействия
+paths:
+  /notification:
+    post:
+      tags:
+        - internal
+      summary: Отправить сообщение.
+      description: Отправить сообщение покупателю о процессе выполнения заказа
+      security:
+        - BearerAuth: []
+      operationId: notifyCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationDto'
+      responses:
+        '201':
+          description: Сообщение запланировано к отправке.
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    NotificationDto:
+      description: Уведомление покупателю.
+      type: object
+      properties:
+        cusomer_id:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя.
+        order_id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа.
+        message:
+          type: string
+          description: Сообщение.
+        notification_way:
+          type: string
+          enum:
+            - SMS
+            - EMAIL
+          description: Способ уведомления.

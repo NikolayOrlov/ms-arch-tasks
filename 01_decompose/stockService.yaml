@@ -26,6 +26,8 @@ paths:
             Зарезервированный при формировании покупателем корзины товар, будет находиться в резерве определенное время,
             после чего будет возвращен в доступные остатки.
             Зарезервированный при оформлении заказа товар, будет находиться в резерве до снятия резерва или передачи его в доставку.
+      security:
+        - BearerAuth: []
       operationId: reserveProduct
       requestBody:
         required: true
@@ -43,6 +45,8 @@ paths:
         - internal
       summary: Снять резерв на товар.
       description: Снять резерв на товар при не удавшемся оформлении заказа.
+      security:
+        - BearerAuth: []
       operationId: cancelProductReserveForOrder
       requestBody:
         required: true
@@ -55,6 +59,10 @@ paths:
           description: Резерв на товар снят.
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     ReserveDto:
       description: Запрос оформления заказа

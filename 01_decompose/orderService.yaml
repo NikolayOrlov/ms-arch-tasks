@@ -25,6 +25,8 @@ paths:
         - system_operation
       summary: Получение пользователем информации о своих заказах.
       description: Получение пользователем информации о своих заказах.
+      security:
+        - BearerAuth: []
       operationId: getCustomerOrders
       responses:
         '200':
@@ -40,6 +42,8 @@ paths:
         - internal
       summary: Создание заказа.
       description: Создание заказа в статусе CHARGE_PENDING.
+      security:
+        - BearerAuth: []
       operationId: createOrder
       requestBody:
         required: true
@@ -63,6 +67,8 @@ paths:
         - system_operation
       summary: Получение информации о заказе.
       description: Получение информации о заказе. Кроме покупателя информация о заказе доступна работникам склада.
+      security:
+        - BearerAuth: []
       operationId: getOrder
       parameters:
         - name: id
@@ -85,6 +91,8 @@ paths:
         - internal
       summary: Установка статуса заказа в процессе обработки.
       description: Установка статуса заказа в процессе обработки.
+      security:
+        - BearerAuth: []
       operationId: updateOrderStatus
       parameters:
         - name: id
@@ -105,6 +113,10 @@ paths:
           description: Статус заказа установлен.
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     OrderDto:
       description: Заказ

@@ -35,4 +35,6 @@
 - [Checkout service REST API](checkoutService.yaml)
 - [Order service REST API](orderService.yaml)
 - [Stock service REST API](stockService.yaml)
+- [Notification service REST API](notificationService.yaml)
 - [Delivery service REST API](deliveryService.yaml)
+- [Customer service REST API](customerService.yaml)

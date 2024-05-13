@@ -24,6 +24,8 @@ paths:
         - internal
       summary: Создать заявку на доставку.
       description: Создать заявку на готовый к отправке со склада товар.
+      security:
+        - BearerAuth: []
       operationId: newDelivery
       requestBody:
         required: true
@@ -40,6 +42,8 @@ paths:
         - internal
       summary: Подтвердить передачу товаров заказа в доставку курьеру транспортной компании.
       description: Подтвердить передачу товаров заказа в доставку курьеру транспортной компании.
+      security:
+        - BearerAuth: []
       operationId: orderHandover
       requestBody:
         required: true
@@ -56,6 +60,8 @@ paths:
         - external
       summary: Подтвердить получение заказа покупателем.
       description: Подтвердить получение доставленного заказа покупателем.
+      security:
+        - BasicAuth: []
       operationId: deliveryConfirmed
       requestBody:
         required: true
@@ -67,6 +73,13 @@ paths:
         '204':
           description: Информация о получении заказа принята.
 components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     DeliveryDto:
       description: Доставка заказа транспортной компанией.

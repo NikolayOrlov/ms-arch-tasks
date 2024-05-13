@@ -25,6 +25,8 @@ paths:
         - system_operation
       summary: Поиск товаров в каталоге
       description: Поиск товаров в каталоге
+      security:
+        - BearerAuth: []
       operationId: searchProducts
       requestBody:
         required: true
@@ -47,6 +49,8 @@ paths:
         - system_operation
       summary: Получить список категорий товаров
       description: Получить список категорий товаров
+      security:
+        - BearerAuth: []
       operationId: getProductCategories
       responses:
         '200':
@@ -63,6 +67,8 @@ paths:
         - system_operation
       summary: Получение потребительской информации о товаре
       description: Получение потребительской информации о товаре
+      security:
+        - BearerAuth: []
       operationId: getProduct
       parameters:
         - name: id
@@ -85,6 +91,8 @@ paths:
         - internal
       summary: Получение транспортных свойств товаров
       description: Получение свойств товаров для формирования запроса на доставку транспортной компанией
+      security:
+        - BearerAuth: []
       operationId: getDeliveryAttributes
       parameters:
         - name: id
@@ -102,6 +110,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductDeliveryAttributesDto'
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     ProductQueryFilterDto:
       description: Фильтр поиска товаров
