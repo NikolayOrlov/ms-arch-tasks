@@ -15,20 +15,20 @@
 
 ## Новый namespace "otus"
 ```
-$ kubectl create namespace otus
+kubectl create namespace otus
 ```
 
 ## Для запуска приложения в k8s выполнить команду в папке ./manifests
 ```
-$ kubectl apply -f . -n=otus
+kubectl apply -f . -n=otus
 ```
 
 ## Проверить доступность запущенного приложения
 ```
-$ curl http://arch.homework/health
+curl http://arch.homework/health
 ```
 
 ## Для удаления приложения выполнить команду в папке ./manifests
 ```
-$ kubectl delete -f . -n=otus
+kubectl delete -f . -n=otus
 ```

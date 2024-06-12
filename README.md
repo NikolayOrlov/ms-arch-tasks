@@ -3,3 +3,5 @@
 ## [Паттерны декомпозиции микросервисов](01_decompose/README.md)
 
 ## [Основы работы с Docker](02_docker/README.md)
+
+## [Базовые сущности Кubernetes: ReplicaSet, Deployment, Service, Ingress](03_k8s/README.md)
