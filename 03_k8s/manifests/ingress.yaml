@@ -10,8 +10,33 @@ spec:
     - host: arch.homework
       http:
         paths:
-          - path: /
+          - path: /health
             pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  number: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rewrite
+  labels:
+    app: app
+  annotations:
+    # forward:
+    nginx.ingress.kubernetes.io/rewrite-target: /$4
+    # redirect:
+    # nginx.ingress.kubernetes.io/rewrite-target: http://arch.homework/$4
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /otusapp(/|$)([\w.-]*)(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: app
