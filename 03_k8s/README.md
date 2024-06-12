@@ -27,6 +27,10 @@ kubectl apply -f . -n=otus
 ```
 curl http://arch.homework/health
 ```
+или
+```
+curl http://arch.homework/otusapp/norlov/health
+```
 
 ## Для удаления приложения выполнить команду в папке ./manifests
 ```
