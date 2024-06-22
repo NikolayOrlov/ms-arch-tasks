@@ -1,0 +1,9 @@
+spring:
+  application.name: users
+  datasource:
+    url: jdbc:postgresql://localhost:5433/service
+    driver-class-name: org.postgresql.Driver
+    username: username
+    password: password
+  jpa:
+    generate-ddl: true
