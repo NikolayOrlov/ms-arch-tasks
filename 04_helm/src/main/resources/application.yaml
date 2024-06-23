@@ -1,9 +1,11 @@
 spring:
   application.name: users
-  datasource:
-    url: jdbc:postgresql://localhost:5433/service
-    driver-class-name: org.postgresql.Driver
-    username: username
-    password: password
   jpa:
     generate-ddl: true
+    properties.hibernate.default_schema: ${postgres_default_schema}
+  datasource:
+    url: jdbc:postgresql://${postgres_url}/${postgres_database}?currentSchema=${spring.jpa.properties.hibernate.default_schema}
+    driver-class-name: org.postgresql.Driver
+    username: ${postgres_username}
+    password: ${postgres_password}
+
