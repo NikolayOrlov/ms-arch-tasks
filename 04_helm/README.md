@@ -40,6 +40,30 @@ docker push gmnvnorlov/ms-arch-tasks-user-app:1.0.0
 docker run -d -p 8080:8080 --env-file ./local.env --name user-app-container gmnvnorlov/ms-arch-tasks-user-app:1.0.0
 ```
 
+## Работа с helm
 
+### Добавление репозитория
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
 
+### Список доступных charts в репозитории
+```
+helm search repo bitnami
+```
+
+### Установка PostgresDB в otus namespace
+```
+helm install pgdb -f values.yaml bitnami/postgresql -n otus
+```
+default [values.yaml](https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml)
+
+## Для запуска приложения в k8s выполнить команду в папке ./manifests
+```
+kubectl apply -f . -n=otus
+```
+
+## Проверить доступность запущенного приложения из браузера
+```
+http://arch.homework/swagger-ui/index.html
 

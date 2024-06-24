@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgdb-postgresql
+  labels:
+    app: user-app
+data:
+  postgres_url: "pgdb-postgresql.otus.svc.cluster.local:5432"
+  postgres_database: "service"
+  postgres_default_schema: "public"
+  postgres_username: "user"
