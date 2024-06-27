@@ -66,3 +66,4 @@ kubectl apply -f . -n=otus
 ## Проверить доступность запущенного приложения из браузера
 http://arch.homework/swagger-ui/index.html
 
+## [Postman коллекция](postman)
