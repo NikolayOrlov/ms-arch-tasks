@@ -54,13 +54,21 @@ helm search repo bitnami
 
 ### Установка PostgresDB в otus namespace
 ```
-helm install pgdb -f values.yaml bitnami/postgresql -n otus
+helm install pgdb -f pgdb-values.yaml bitnami/postgresql -n otus
 ```
 default [values.yaml](https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml)
 
-## Для запуска приложения в k8s выполнить команду в папке ./manifests
+## Для запуска приложения в k8s
+выполнить команду в папке ./manifests
 ```
 kubectl apply -f . -n=otus
+```
+
+ИЛИ 
+
+выполнить команду в папке .
+```
+helm install user-app ./user-app-chart -n otus
 ```
 
 ## Проверить доступность запущенного приложения из браузера

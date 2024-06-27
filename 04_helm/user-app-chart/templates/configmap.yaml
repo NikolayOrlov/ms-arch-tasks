@@ -1,0 +1,14 @@
+{{- if .Values.configMap.create -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "user-app-chart.fullname" . }}
+  labels:
+    spring.cloud.kubernetes.config: "true"
+    {{- include "user-app-chart.labels" . | nindent 4 }}
+data:
+  postgres_url: "{{ .Values.configMap.app.postgres.url }}"
+  postgres_database: "{{ .Values.configMap.app.postgres.database }}"
+  postgres_default_schema: "{{ .Values.configMap.app.postgres.schema }}"
+  postgres_username: "{{ .Values.configMap.app.postgres.username }}"
+{{- end }}
