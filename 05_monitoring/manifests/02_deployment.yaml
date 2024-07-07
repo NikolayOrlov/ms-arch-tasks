@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-app
+  labels:
+    app: user-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-app
+  template:
+    metadata:
+      labels:
+        app: user-app
+    spec:
+      containers:
+      - image: gmnvnorlov/ms-arch-tasks-user-app:1.1.0
+        name: user-app-container
+        env:
+          - name: postgres_url
+            valueFrom:
+              configMapKeyRef:
+                name: pgdb-postgresql
+                key: postgres_url
+          - name: postgres_database
+            valueFrom:
+              configMapKeyRef:
+                name: pgdb-postgresql
+                key: postgres_database
+          - name: postgres_default_schema
+            valueFrom:
+              configMapKeyRef:
+                name: pgdb-postgresql
+                key: postgres_default_schema
+          - name: postgres_username
+            valueFrom:
+              configMapKeyRef:
+                name: pgdb-postgresql
+                key: postgres_username
+          - name: postgres_password
+            valueFrom:
+              secretKeyRef:
+                name: pgdb-postgresql
+                key: password
+        ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080

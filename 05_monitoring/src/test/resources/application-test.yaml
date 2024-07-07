@@ -1,5 +1,4 @@
-postgres_url: localhost:5433
-postgres_database: service
-postgres_username: username
-postgres_password: password
-postgres_default_schema: public
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:11.1:///service
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver

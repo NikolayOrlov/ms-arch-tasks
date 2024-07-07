@@ -1,0 +1,8 @@
+server:
+  extraScrapeConfigs:
+  # Node exporter:
+    - job_name: srv
+      scrape_interval: 30s
+      static_configs:
+        - targets:
+            - '10.0.0.7:9100'
