@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user-app-monitor
+  labels:
+    app: user-app-monitor
+spec:
+  endpoints:
+  # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: user-app

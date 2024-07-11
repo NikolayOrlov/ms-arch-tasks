@@ -5,7 +5,7 @@ metadata:
   labels:
     app: user-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: user-app
@@ -15,7 +15,7 @@ spec:
         app: user-app
     spec:
       containers:
-      - image: gmnvnorlov/ms-arch-tasks-user-app:1.1.0
+      - image: gmnvnorlov/ms-arch-tasks-user-app:1.2.0
         name: user-app-container
         env:
           - name: postgres_url

@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class MetricsProperties {
     private Tags tags;
-    record Tags(String env, String application, String pod, String namespace) { }
+    record Tags(String application) { }
 }

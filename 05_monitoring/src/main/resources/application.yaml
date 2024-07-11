@@ -24,7 +24,7 @@ management:
       system: true
       tomcat: true
     tags:
-      namespace: ${POD_NAMESPACE:null}
       application: ${spring.application.name}
-      pod: ${POD_NAME:null}
-      env: ${SPRING_PROFILES_ACTIVE:local}
+    distribution:
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
