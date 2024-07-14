@@ -93,4 +93,12 @@ http_server_requests_seconds_sum
 http_server_requests_seconds_sum{uri='/dumb/a'}
 http_server_requests_seconds_sum{uri=~'/dumb/a|/dumb/b'}
 http_server_requests_seconds_sum{uri=~'/dumb/.*'}
+http_server_requests_seconds_sum{uri=~'/dumb/a',pod="user-app-b57dfc585-bxshs"}
 http_server_requests_seconds_sum{uri=~'/dumb/a',status=~"2.+"}
+http_server_requests_seconds_sum{uri=~'/dumb/a',status=~"2.+"}[2m] - векторы из нескольких scraped значений за период (2m)
+increase(http_server_requests_seconds_count{uri=~'/dumb/.*',status=~"2.+"}[2m])
+rate(http_server_requests_seconds_count{uri=~'/dumb/.*',status=~"2.+"}[2m])   - 4 графика: (/dumb/a, /dumb/b) * (pod1, pod2)
+sum by (uri) (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[2m]))   - 2 графика: (/dumb/a, /dumb/b)
+sum by (uri, pod) (rate(http_server_requests_seconds_sum{uri=~'/dumb/.*'}[1m])) / sum by (uri, pod) (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[1m])) - среднее время ответа API метода
+histogram_quantile(0.95, sum by(le, uri) (rate(http_server_requests_seconds_bucket{uri=~"/dumb/.*"}[1m]))) - 95 квантиль по методам [документация](https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile)
+sum by (uri) (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[1m])) - RPS
