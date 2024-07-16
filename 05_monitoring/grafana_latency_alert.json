@@ -1,0 +1,101 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: eval_group
+      folder: otus
+      interval: 1m
+      rules:
+        - uid: bdry9dg33diwwa
+          title: user-api latency (response time)
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 415558
+                to: 413699
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: sum (rate(http_server_requests_seconds_sum{uri=~'/dumb/.*'}[1m])) / sum (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[1m]))
+                instant: false
+                interval: ""
+                intervalMs: 30000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 415558
+                to: 413699
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 415558
+                to: 413699
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0.11
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: edrns9snwf7k0d
+          panelId: 2
+          noDataState: NoData
+          execErrState: Error
+          for: 0s
+          annotations:
+            __dashboardUid__: edrns9snwf7k0d
+            __panelId__: "2"
+            description: ""
+            runbook_url: ""
+            summary: ""
+          labels:
+            "": ""
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
