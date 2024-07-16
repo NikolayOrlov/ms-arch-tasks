@@ -88,7 +88,8 @@ ab -n 500 -c 50 http://arch.homework/dumb/b
 
 while true; do ab -r -n 10 -c 1 http://arch.homework/dumb/a; ab -r -n 10 -c 1 http://arch.homework/dumb/b; done
 
-### Примеры запросов
+### Примеры запросов PromQL
+```
 http_server_requests_seconds_sum
 http_server_requests_seconds_sum{uri='/dumb/a'}
 http_server_requests_seconds_sum{uri=~'/dumb/a|/dumb/b'}
@@ -102,3 +103,4 @@ sum by (uri) (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[2m]))   -
 sum by (uri, pod) (rate(http_server_requests_seconds_sum{uri=~'/dumb/.*'}[1m])) / sum by (uri, pod) (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[1m])) - среднее время ответа API метода
 histogram_quantile(0.95, sum by(le, uri) (rate(http_server_requests_seconds_bucket{uri=~"/dumb/.*"}[1m]))) - 95 квантиль по методам [документация](https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile)
 sum by (uri) (rate(http_server_requests_seconds_count{uri=~'/dumb/.*'}[1m])) - RPS
+```
