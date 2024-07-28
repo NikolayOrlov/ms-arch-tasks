@@ -7,3 +7,7 @@
 ## [Базовые сущности Кubernetes: ReplicaSet, Deployment, Service, Ingress](03_k8s/README.md)
 
 ## [Работа с Helm-ом](04_helm/README.md)
+
+## [Prometheus. Grafana](05_monitoring/README.md)
+
+## [Backend for frontends. Apigateway](06_api_gateway_auth/README.md)
