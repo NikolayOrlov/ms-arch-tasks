@@ -20,3 +20,4 @@ management:
     distribution:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+logging.level.homework.arch: DEBUG

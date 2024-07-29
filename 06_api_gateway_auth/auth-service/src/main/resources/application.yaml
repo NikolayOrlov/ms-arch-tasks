@@ -21,3 +21,5 @@ management:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
 profile-service-url: http://profileservice:8080
+logging.level.homework.arch: DEBUG
+logging.level.org.springframework.web.client: DEBUG

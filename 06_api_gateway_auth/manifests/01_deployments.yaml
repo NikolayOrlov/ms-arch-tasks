@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authservice
+  labels:
+    app: authservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authservice
+  template:
+    metadata:
+      labels:
+        app: authservice
+    spec:
+      containers:
+      - image: gmnvnorlov/ms-arch-tasks-authservice:1.0.0
+        name: authservice-container
+        ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profileservice
+  labels:
+    app: profileservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profileservice
+  template:
+    metadata:
+      labels:
+        app: profileservice
+    spec:
+      containers:
+      - image: gmnvnorlov/ms-arch-tasks-profileservice:1.0.0
+        name: profileservice-container
+        ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+
