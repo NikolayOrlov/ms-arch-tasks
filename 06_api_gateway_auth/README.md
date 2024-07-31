@@ -24,4 +24,10 @@ docker image tag profileservice:1.0.0 gmnvnorlov/ms-arch-tasks-profileservice:1.
 docker push gmnvnorlov/ms-arch-tasks-profileservice:1.0.0
 ```
 
+## Для запуска приложения в k8s
+выполнить команду в папке ./manifests
+```
+kubectl apply -f . -n=otus
+```
 
+## [Postman коллекция](postman)

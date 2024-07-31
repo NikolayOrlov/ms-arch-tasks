@@ -1,0 +1,593 @@
+{
+	"info": {
+		"_postman_id": "1c981ca5-a80e-4b5d-8356-7ff0278e5064",
+		"name": "api gateway auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "16432232"
+	},
+	"item": [
+		{
+			"name": "регистрация user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful register\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"password\", pm.variables.replaceIn('{{$randomPassword}}'));",
+							"pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'));",
+							"pm.collectionVariables.set(\"login\", pm.variables.replaceIn('{{$randomUserName}}'));",
+							"pm.collectionVariables.set(\"name\", pm.variables.replaceIn('{{$randomFullName}}'));",
+							"pm.collectionVariables.set(\"phone1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'));",
+							"pm.collectionVariables.set(\"address1\", pm.variables.replaceIn('{{$randomStreetAddress}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\": \"{{login}}\", \n\t\"password\": \"{{password}}\",\n    \"name\": \"{{name}}\",\n\t\"email\": \"{{email}}\",\n\t\"phone\": \"{{phone1}}\",\n\t\"address\": \"{{address1}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/register"
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1 unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test unauthorized GET request to profile data\", function () {",
+							"    pm.response.to.have.status(302);",
+							"    console.log(pm.response.headers);",
+							"    var redirectUrl = pm.response.headers.get('Location');",
+							"    pm.expect(redirectUrl).to.contains(\"/sign-in-page\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "логин user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful login\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.body(\"SUCCESS\");",
+							"    pm.collectionVariables.set(\"user1sessionId\", pm.cookies.get('SESSIONID'));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{login}}'));",
+							"console.log(pm.variables.replaceIn('{{password}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"{{login}}\", \"password\": \"{{password}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/login"
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to profile data\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"name\"));",
+							"    pm.expect(jsonData.email).to.eql(pm.collectionVariables.get(\"email\"));",
+							"    pm.expect(jsonData.phone).to.eql(pm.collectionVariables.get(\"phone1\"));",
+							"    pm.expect(jsonData.address).to.eql(pm.collectionVariables.get(\"address1\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "обновить профиль user1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"phone2\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))",
+							"pm.collectionVariables.set(\"address2\", pm.variables.replaceIn('{{$randomStreetAddress}}'))"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test PUT request to update profile data\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"phone\": \"{{phone2}}\", \"address\": \"{{address2}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1 после обновления",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to profile data\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"name\"));",
+							"    pm.expect(jsonData.email).to.eql(pm.collectionVariables.get(\"email\"));",
+							"    pm.expect(jsonData.phone).to.eql(pm.collectionVariables.get(\"phone2\"));",
+							"    pm.expect(jsonData.address).to.eql(pm.collectionVariables.get(\"address2\"));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "логаут user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful logout\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": "{{baseUrl}}/logout"
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1 unauthorized после логаут",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test unauthorized GET request to profile data\", function () {",
+							"    pm.response.to.have.status(302);",
+							"    console.log(pm.response.headers);",
+							"    var redirectUrl = pm.response.headers.get('Location');",
+							"    pm.expect(redirectUrl).to.contains(\"/sign-in-page\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "регистрация user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful register\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"password\", pm.variables.replaceIn('{{$randomPassword}}'));",
+							"pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'));",
+							"pm.collectionVariables.set(\"login\", pm.variables.replaceIn('{{$randomUserName}}'));",
+							"pm.collectionVariables.set(\"name\", pm.variables.replaceIn('{{$randomFullName}}'));",
+							"pm.collectionVariables.set(\"phone1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'));",
+							"pm.collectionVariables.set(\"address1\", pm.variables.replaceIn('{{$randomStreetAddress}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\": \"{{login}}\", \n\t\"password\": \"{{password}}\",\n    \"name\": \"{{name}}\",\n\t\"email\": \"{{email}}\",\n\t\"phone\": \"{{phone1}}\",\n\t\"address\": \"{{address1}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/register"
+			},
+			"response": []
+		},
+		{
+			"name": "логин user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful login\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.body(\"SUCCESS\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{login}}'));",
+							"console.log(pm.variables.replaceIn('{{password}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"{{login}}\", \"password\": \"{{password}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/login"
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to profile data\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"name\"));",
+							"    pm.expect(jsonData.email).to.eql(pm.collectionVariables.get(\"email\"));",
+							"    pm.expect(jsonData.phone).to.eql(pm.collectionVariables.get(\"phone1\"));",
+							"    pm.expect(jsonData.address).to.eql(pm.collectionVariables.get(\"address1\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "логаут user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful logout\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": "{{baseUrl}}/logout"
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user2 unauthorized после логаут",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test unauthorized GET request to profile data\", function () {",
+							"    pm.response.to.have.status(302);",
+							"    console.log(pm.response.headers);",
+							"    var redirectUrl = pm.response.headers.get('Location');",
+							"    pm.expect(redirectUrl).to.contains(\"/sign-in-page\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/public-api/profile"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const jar = pm.cookies.jar();",
+					"",
+					"jar.clear(pm.request.url, function (error) {",
+					"  // error - <Error>",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "password",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "login",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "name",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "http://arch.homework",
+			"type": "string"
+		},
+		{
+			"key": "email",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "phone1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "phone2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "address1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "address2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user1sessionId",
+			"value": ""
+		}
+	]
+}

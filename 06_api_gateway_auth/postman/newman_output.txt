@@ -1,0 +1,176 @@
+newman
+
+api gateway auth
+
+→ регистрация user1
+  POST http://arch.homework/register [200 OK, 178B, 201ms]
+  ✓  Test successful register
+
+→ профиль user1 unauthorized
+  ┌
+  │ 'http://arch.homework'
+  └
+  GET http://arch.homework/public-api/profile [302 Moved Temporarily, 371B, 53ms]
+  ┌
+  │ [
+  │   {
+  │     key: 'Date',
+  │     value: 'Wed, 31 Jul 2024 17:42:02 GMT'
+  │   },
+  │   {
+  │     key: 'Content-Type',
+  │     value: 'text/html'
+  │   },
+  │   {
+  │     key: 'Content-Length',
+  │     value: '138'
+  │   },
+  │   {
+  │     key: 'Connection',
+  │     value: 'keep-alive'
+  │   },
+  │   {
+  │     key: 'Location',
+  │     value: 'http://arch.homework/sign-in-page?rd=http:
+  │ //arch.homework%2Fpublic-api%2Fprofile'
+  │   }
+  │ ]
+  └
+  ✓  Test unauthorized GET request to profile data
+
+→ логин user1
+  ┌
+  │ 'Amie_Hayes44'
+  │ '6d3kLJkeKT0cZHk'
+  └
+  POST http://arch.homework/login [200 OK, 206B, 62ms]
+  ✓  Test successful login
+
+→ профиль user1
+  ┌
+  │ 'http://arch.homework'
+  └
+  GET http://arch.homework/public-api/profile [200 OK, 269B, 68ms]
+  ✓  Test GET request to profile data
+
+→ обновить профиль user1
+  PUT http://arch.homework/public-api/profile [200 OK, 99B, 67ms]
+  ✓  Test PUT request to update profile data
+
+→ профиль user1 после обновления
+  ┌
+  │ 'http://arch.homework'
+  └
+  GET http://arch.homework/public-api/profile [200 OK, 268B, 57ms]
+  ✓  Test GET request to profile data
+
+→ логаут user1
+  POST http://arch.homework/logout [200 OK, 173B, 64ms]
+  ✓  Test successful logout
+
+→ профиль user1 unauthorized после логаут
+  ┌
+  │ 'http://arch.homework'
+  └
+  GET http://arch.homework/public-api/profile [302 Moved Temporarily, 371B, 55ms]
+  ┌
+  │ [
+  │   {
+  │     key: 'Date',
+  │     value: 'Wed, 31 Jul 2024 17:42:03 GMT'
+  │   },
+  │   {
+  │     key: 'Content-Type',
+  │     value: 'text/html'
+  │   },
+  │   {
+  │     key: 'Content-Length',
+  │     value: '138'
+  │   },
+  │   {
+  │     key: 'Connection',
+  │     value: 'keep-alive'
+  │   },
+  │   {
+  │     key: 'Location',
+  │     value: 'http://arch.homework/sign-in-page?rd=http:
+  │ //arch.homework%2Fpublic-api%2Fprofile'
+  │   }
+  │ ]
+  └
+  ✓  Test unauthorized GET request to profile data
+
+→ регистрация user2
+  POST http://arch.homework/register [200 OK, 178B, 75ms]
+  ✓  Test successful register
+
+→ логин user2
+  ┌
+  │ 'Fiona_Vandervort'
+  │ 'bmHpy7WMdQC4Wqg'
+  └
+  POST http://arch.homework/login [200 OK, 206B, 66ms]
+  ✓  Test successful login
+
+→ профиль user2
+  ┌
+  │ 'http://arch.homework'
+  └
+  GET http://arch.homework/public-api/profile [200 OK, 251B, 66ms]
+  ✓  Test GET request to profile data
+
+→ логаут user2
+  POST http://arch.homework/logout [200 OK, 173B, 56ms]
+  ✓  Test successful logout
+
+→ профиль user2 unauthorized после логаут
+  ┌
+  │ 'http://arch.homework'
+  └
+  GET http://arch.homework/public-api/profile [302 Moved Temporarily, 371B, 50ms]
+  ┌
+  │ [
+  │   {
+  │     key: 'Date',
+  │     value: 'Wed, 31 Jul 2024 17:42:03 GMT'
+  │   },
+  │   {
+  │     key: 'Content-Type',
+  │     value: 'text/html'
+  │   },
+  │   {
+  │     key: 'Content-Length',
+  │     value: '138'
+  │   },
+  │   {
+  │     key: 'Connection',
+  │     value: 'keep-alive'
+  │   },
+  │   {
+  │     key: 'Location',
+  │     value: 'http://arch.homework/sign-in-page?rd=http:
+  │ //arch.homework%2Fpublic-api%2Fprofile'
+  │   }
+  │ ]
+  └
+  ✓  Test unauthorized GET request to profile data
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                13 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                26 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                24 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                13 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 1682ms                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 872B (approx)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 72ms [min: 50ms, max: 201ms, s.d.: 37ms] │
+└─────────────────────────────────────────────────────────────────┘
