@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  version: 1.0.1
+  title: checkout-service
+  description: checkout-service
+
+servers:
+  - url: '{schema}://arch.homework/api/checkoutservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+
+paths:
+  /private/account:
+    post:
+      tags:
+        - private
+      summary: Создание счета покупателя.
+      description: Создание счета покупателя.
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountDto'
+      responses:
+        '201':
+          description: Счет создан.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Идентификатор счета
+                format: uuid
+  /private/account/{account_id}/replenishment:
+    post:
+      tags:
+        - private
+      summary: Пополнение счета пользователя.
+      description: Пополнение счета пользователя.
+      operationId: replenishAccount
+      parameters:
+        - name: account_id
+          description: Идентификатор счета
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountReplenishmentDto'
+      responses:
+        '200':
+          description: Счет пополнен.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Идентификатор пополнения
+                format: uuid
+  /private/order-payment:
+    post:
+      tags:
+        - private
+      summary: Оплата заказа.
+      description: Оплата заказа.
+      operationId: createOrderPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPaymentDto'
+      responses:
+        '200':
+          description: Оплата заказа проведена.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Идентификатор платежа
+                format: uuid
+components:
+  schemas:
+    AccountDto:
+      description: Счет
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор счета
+        customer_id:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя
+        balance:
+          type: number
+          description: Остаток на счете
+    OrderPaymentDto:
+      description: Оплата заказа
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор платежа
+        account_id:
+          type: string
+          format: uuid
+          description: Идентификатор счета
+        order_id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа
+        amout:
+          type: number
+          description: Сумма платежа
+    AccountReplenishmentDto:
+      description: Пополнение
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор пополнения
+        account_id:
+          type: string
+          format: uuid
+          description: Идентификатор счета
+        amount:
+          type: number
+          description: Сумма пополнения

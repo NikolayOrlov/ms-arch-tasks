@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  version: 1.0.1
+  title: order-service
+  description: order-service
+
+servers:
+  - url: '{schema}://arch.homework/api/orderservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+
+paths:
+  /private/orders:
+    post:
+      tags:
+        - private
+      summary: Создание заказа.
+      description: Создание заказа.
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDto'
+      responses:
+        '201':
+          description: Создан заказ.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Идентификатор заказа
+                format: uuid
+components:
+  schemas:
+    OrderDto:
+      description: Заказ
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа
+        customer_id:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemDto'
+        price:
+          type: number
+          description: Цена заказа
+        date:
+          type: string
+          format: date-time
+          description: Оплачен
+    LineItemDto:
+      description: Товарная позиция заказа
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество товара
+          default: 1
+        price:
+          type: number
+          description: Цена товарной позиции, рублей

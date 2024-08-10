@@ -1,0 +1,26 @@
+spring:
+  application.name: orderservice
+server:
+  servlet:
+    context-path: /api/orderservice
+management:
+  endpoint.health:
+    cache.time-to-live: 20s
+    show-details: always
+    group:
+      readiness:
+        include: ping
+      liveness:
+        include: diskSpace
+  endpoints.web.exposure.include: info, health, prometheus
+  metrics:
+    enable:
+      jvm: true
+      system: true
+      tomcat: true
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+logging.level.homework.arch: DEBUG
