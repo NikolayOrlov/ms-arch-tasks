@@ -17,9 +17,10 @@ paths:
   /private/account:
     post:
       tags:
+        - checkout
         - private
-      summary: Создание счета пользователя.
-      description: Создание счета пользователя.
+      summary: Создание счета покупателя.
+      description: Создание счета покупателя.
       operationId: createAccount
       requestBody:
         required: true
@@ -30,27 +31,14 @@ paths:
       responses:
         '201':
           description: Счет создан.
-          content:
-            application/json:
-              schema:
-                type: string
-                description: Идентификатор счета
-                format: uuid
-  /private/account/{account_id}/replenishment:
+  /private/account/replenishment:
     post:
       tags:
+        - checkout
         - private
       summary: Пополнение счета пользователя.
       description: Пополнение счета пользователя.
       operationId: replenishAccount
-      parameters:
-        - name: account_id
-          description: Идентификатор аккаунта
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       requestBody:
         required: true
         content:
@@ -69,6 +57,7 @@ paths:
   /private/order-payment:
     post:
       tags:
+        - checkout
         - private
       summary: Оплата заказа.
       description: Оплата заказа.
@@ -88,20 +77,46 @@ paths:
                 type: string
                 description: Идентификатор платежа
                 format: uuid
+        '400':
+          description: Оплата заказа не проведена.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Код ошибки
+  /public/account:
+    get:
+      tags:
+        - checkout
+        - public
+      summary: Счет покупателя.
+      description: Получить счет покупателя
+      operationId: getAccount
+      parameters:
+        - name: customer_id
+          description: Идентификатор покупателя
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Счет покупателя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
 components:
   schemas:
     AccountDto:
       description: Счет
       type: object
       properties:
-        id:
+        customer_id:
           type: string
           format: uuid
-          description: Идентификатор счета
-        user_id:
-          type: string
-          format: uuid
-          description: Идентификатор пользователя
+          description: Идентификатор покупателя
         balance:
           type: number
           description: Остаток на счете
@@ -113,10 +128,10 @@ components:
           type: string
           format: uuid
           description: Идентификатор платежа
-        account_id:
+        customer_id:
           type: string
           format: uuid
-          description: Идентификатор счета
+          description: Идентификатор покупателя
         order_id:
           type: string
           format: uuid
@@ -125,17 +140,17 @@ components:
           type: number
           description: Сумма платежа
     AccountReplenishmentDto:
-      description: Пополнение
+      description: Пополнение счета покупателя
       type: object
       properties:
         id:
           type: string
           format: uuid
           description: Идентификатор пополнения
-        account_id:
+        customer_id:
           type: string
           format: uuid
-          description: Идентификатор счета
+          description: Идентификатор покупателя
         amount:
           type: number
           description: Сумма пополнения

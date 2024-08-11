@@ -17,6 +17,7 @@ paths:
   /private/notification:
     post:
       tags:
+        - notification
         - private
       summary: Отправить сообщение.
       description: Отправить сообщение покупателю о процессе выполнения заказа
@@ -33,13 +34,14 @@ paths:
   /public/notification:
     get:
       tags:
+        - notification
         - public
-      summary: Список сообщений пользователя.
+      summary: Список сообщений покупателя.
       description: Получить сообщения, отправленные покупателю
       operationId: getNotifications
       parameters:
         - name: customer_id
-          description: Идентификатор пользователя
+          description: Идентификатор покупателя
           in: query
           required: true
           schema:

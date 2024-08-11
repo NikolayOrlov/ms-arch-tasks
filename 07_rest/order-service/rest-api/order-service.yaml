@@ -14,9 +14,10 @@ servers:
         default: http
 
 paths:
-  /private/orders:
+  /private/order:
     post:
       tags:
+        - order
         - private
       summary: Создание заказа.
       description: Создание заказа.
@@ -36,6 +37,31 @@ paths:
                 type: string
                 description: Идентификатор заказа
                 format: uuid
+  /public/order:
+    get:
+      tags:
+        - order
+        - public
+      summary: Список заказов пользователя.
+      description: Получить заказы покупателя
+      operationId: getOrders
+      parameters:
+        - name: customer_id
+          description: Идентификатор покупателя
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Заказы покупателя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDto'
 components:
   schemas:
     OrderDto:
@@ -61,6 +87,8 @@ components:
           type: string
           format: date-time
           description: Оплачен
+        status:
+          $ref: '#/components/schemas/OrderStatusDto'
     LineItemDto:
       description: Товарная позиция заказа
       type: object
@@ -79,3 +107,11 @@ components:
         price:
           type: number
           description: Цена товарной позиции, рублей
+    OrderStatusDto:
+      description: Статус заказа |
+        `CHARGED` - Получено подтвеждение оплаты заказа;
+        `FAILED` - Платеж не подтверждён;
+      type: string
+      enum:
+        - CHARGED
+        - FAILED

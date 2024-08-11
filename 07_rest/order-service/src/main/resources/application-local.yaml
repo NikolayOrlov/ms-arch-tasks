@@ -1,2 +1,4 @@
 server.port: 8081
 logging.level.homework.arch: DEBUG
+checkout.url: localhost:8082/api/checkoutservice
+notification.url: localhost:8083/api/notificationservice
