@@ -62,18 +62,18 @@ components:
       description: Уведомление покупателю.
       type: object
       properties:
-        cusomer_id:
+        customerId:
           type: string
           format: uuid
           description: Идентификатор покупателя.
-        order_id:
+        orderId:
           type: string
           format: uuid
           description: Идентификатор заказа.
         message:
           type: string
           description: Сообщение.
-        notification_way:
+        notificationWay:
           type: string
           enum:
             - EMAIL

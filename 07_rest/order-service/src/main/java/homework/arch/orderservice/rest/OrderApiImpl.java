@@ -6,7 +6,7 @@ import homework.arch.orderservice.client.checkout.dto.generated.OrderPaymentDto;
 import homework.arch.orderservice.client.checkout.generated.CheckoutApiClient;
 import homework.arch.orderservice.client.notification.dto.generated.NotificationDto;
 import homework.arch.orderservice.client.notification.generated.NotificationApiClient;
-import homework.arch.orderservice.mapper.OrderMapper;
+import homework.arch.orderservice.mapper.Mapper;
 import homework.arch.orderservice.persistence.OrderEntity;
 import homework.arch.orderservice.persistence.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,25 +24,25 @@ import java.util.UUID;
 @Slf4j
 public class OrderApiImpl implements OrderApi {
     private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
+    private final Mapper mapper;
     private final CheckoutApiClient checkoutClient;
     private final NotificationApiClient notificationClient;
 
     @Override
     public ResponseEntity<List<OrderDto>> getOrders(UUID customerId) {
-        var result = orderRepository.findAllByCustomerId(customerId).stream().map(orderMapper::toDto).toList();
+        var result = orderRepository.findAllByCustomerId(customerId).stream().map(mapper::toDto).toList();
         return ResponseEntity.ok(result);
     }
 
     @Override
     public ResponseEntity<UUID> createOrder(OrderDto orderDto) {
-        var order = orderRepository.save(orderMapper.toDomain(orderDto));
+        var order = orderRepository.save(mapper.toDomain(orderDto));
         var succeed = true;
         try {
             checkoutClient.createOrderPayment(new OrderPaymentDto()
                                                 .orderId(order.getId())
                                                 .customerId(order.getCustomerId())
-                                                .amout(order.getPrice()));
+                                                .amount(order.getPrice()));
             log.debug("Order {} payment success", order.getId());
         } catch (Exception ex) {
             succeed = false;

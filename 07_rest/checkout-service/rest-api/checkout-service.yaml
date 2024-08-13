@@ -113,7 +113,7 @@ components:
       description: Счет
       type: object
       properties:
-        customer_id:
+        customerId:
           type: string
           format: uuid
           description: Идентификатор покупателя
@@ -128,15 +128,15 @@ components:
           type: string
           format: uuid
           description: Идентификатор платежа
-        customer_id:
+        customerId:
           type: string
           format: uuid
           description: Идентификатор покупателя
-        order_id:
+        orderId:
           type: string
           format: uuid
           description: Идентификатор заказа
-        amout:
+        amount:
           type: number
           description: Сумма платежа
     AccountReplenishmentDto:
@@ -147,7 +147,7 @@ components:
           type: string
           format: uuid
           description: Идентификатор пополнения
-        customer_id:
+        customerId:
           type: string
           format: uuid
           description: Идентификатор покупателя
