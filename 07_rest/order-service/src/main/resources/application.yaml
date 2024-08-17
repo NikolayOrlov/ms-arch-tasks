@@ -27,3 +27,5 @@ logging.level.homework.arch: DEBUG
 
 checkout.url: checkoutservice:8080/api/checkoutservice
 notification.url: notificationservice:8080/api/notificationservice
+
+spring.cloud.discovery.client.composite-indicator.enabled: false

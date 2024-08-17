@@ -51,7 +51,7 @@ public class OrderApiImpl implements OrderApi {
 
         notificationClient.notifyCustomer(new NotificationDto()
                                                 .notificationWay(NotificationDto.NotificationWayEnum.EMAIL)
-                                                .cusomerId(order.getCustomerId())
+                                                .customerId(order.getCustomerId())
                                                 .orderId(order.getId())
                                                 .message(succeed
                                                             ? "Order %s payment for amount %s succeeded".formatted(order.getId(), order.getPrice())
