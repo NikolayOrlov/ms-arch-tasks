@@ -31,3 +31,6 @@ kubectl apply -f . -n=otus
 ```
 
 ## [Postman коллекция](postman)
+```
+newman run "api gateway auth.postman_collection.json" > newman_output.txt
+```

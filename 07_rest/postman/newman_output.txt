@@ -1,0 +1,74 @@
+newman
+
+RESTful
+
+→ создание счета покупателя
+  POST http://arch.homework/api/checkoutservice/private/account [200 OK, 99B, 214ms]
+  ✓  Test successful account created
+
+→ пополнение счета покупателя
+  POST http://arch.homework/api/checkoutservice/private/account/replenishment [200 OK, 99B, 61ms]
+  ✓  Test successful account replenished
+
+→ проверка счета покупателя
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/checkoutservice/public/account?customer_id=c3aee1af-9e5e-47f8-86da-2323e1aaf89c [200 OK, 211B, 66ms]
+  ✓  Test GET request to check account state
+
+→ сделать заказ, на который хватает денег
+  POST http://arch.homework/api/orderservice/private/order [201 Created, 183B, 116ms]
+  ✓  Test successful order created
+
+→ проверка счета покупателя после покупки
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/checkoutservice/public/account?customer_id=c3aee1af-9e5e-47f8-86da-2323e1aaf89c [200 OK, 210B, 68ms]
+  ✓  Test GET request to check account state
+
+→ проверка сообщений покупателя
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/notificationservice/public/notification?customer_id=c3aee1af-9e5e-47f8-86da-2323e1aaf89c [200 OK, 358B, 74ms]
+  ✓  Test GET request to check notifications
+
+→ сделать заказ, на который не хватает денег
+  POST http://arch.homework/api/orderservice/private/order [201 Created, 183B, 115ms]
+  ✓  Test successful order created
+
+→ проверка счета покупателя после не удавшейся покупки
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/checkoutservice/public/account?customer_id=c3aee1af-9e5e-47f8-86da-2323e1aaf89c [200 OK, 210B, 72ms]
+  ✓  Test GET request to check account state
+
+→ проверка сообщений покупателя
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/notificationservice/public/notification?customer_id=c3aee1af-9e5e-47f8-86da-2323e1aaf89c [200 OK, 572B, 67ms]
+  ✓  Test GET request to check notifications
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                 9 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                18 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                18 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                 9 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 1355ms                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 937B (approx)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 94ms [min: 61ms, max: 214ms, s.d.: 46ms] │
+└─────────────────────────────────────────────────────────────────┘

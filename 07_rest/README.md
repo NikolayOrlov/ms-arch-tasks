@@ -48,4 +48,7 @@ docker push gmnvnorlov/ms-arch-tasks-notificationservice:1.0.0
 kubectl apply -f . -n=otus
 ```
 
-
+## [Postman коллекция](postman)
+```
+newman run RESTful.postman_collection.json > newman_output.txt
+```

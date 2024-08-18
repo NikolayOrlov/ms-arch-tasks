@@ -1,0 +1,512 @@
+{
+	"info": {
+		"_postman_id": "3d23c9fd-b29e-4924-8c6c-4fe64a903d4b",
+		"name": "RESTful",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "16432232"
+	},
+	"item": [
+		{
+			"name": "создание счета покупателя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful account created\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"customerId\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"customerId\": \"{{customerId}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/checkoutservice/private/account"
+			},
+			"response": []
+		},
+		{
+			"name": "пополнение счета покупателя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful account replenished\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"customerId\": \"{{customerId}}\",\n    \"amount\": 1000\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/checkoutservice/private/account/replenishment"
+			},
+			"response": []
+		},
+		{
+			"name": "проверка счета покупателя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to check account state\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    pm.expect(responseBody.balance).to.equal(1000);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/checkoutservice/public/account?customer_id={{customerId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkoutservice",
+						"public",
+						"account"
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "{{customerId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "сделать заказ, на который хватает денег",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful order created\", function () {",
+							"    pm.response.to.have.status(201);",
+							"    var responseBody = pm.response.json();",
+							"    pm.collectionVariables.set(\"order1Id\", responseBody);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"product1Id\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"customer_id\": \"{{customerId}}\",\n    \"line_items\": [\n    {\n      \"product_id\": \"{{product1Id}}\",\n      \"quantity\": 1,\n      \"price\": 500\n    }\n  ],\n  \"price\": 500\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/orderservice/private/order"
+			},
+			"response": []
+		},
+		{
+			"name": "проверка счета покупателя после покупки",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to check account state\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    pm.expect(responseBody.balance).to.equal(500);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/checkoutservice/public/account?customer_id={{customerId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkoutservice",
+						"public",
+						"account"
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "{{customerId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка сообщений покупателя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to check notifications\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    pm.expect(responseBody[0].message).to.contains('payment for amount 500 succeeded');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/notificationservice/public/notification?customer_id={{customerId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"notificationservice",
+						"public",
+						"notification"
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "{{customerId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "сделать заказ, на который не хватает денег",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful order created\", function () {",
+							"    pm.response.to.have.status(201);",
+							"    var responseBody = pm.response.json();",
+							"    pm.collectionVariables.set(\"order2Id\", responseBody);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"product2Id\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"customer_id\": \"{{customerId}}\",\n    \"line_items\": [\n    {\n      \"product_id\": \"{{product2Id}}\",\n      \"quantity\": 1,\n      \"price\": 600\n    }\n  ],\n  \"price\": 600\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/orderservice/private/order"
+			},
+			"response": []
+		},
+		{
+			"name": "проверка счета покупателя после не удавшейся покупки",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to check account state\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    pm.expect(responseBody.balance).to.equal(500);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/checkoutservice/public/account?customer_id={{customerId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkoutservice",
+						"public",
+						"account"
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "{{customerId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка сообщений покупателя",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to check notifications\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    pm.expect(responseBody[1].message).to.contains('payment for amount 600 failed');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/notificationservice/public/notification?customer_id={{customerId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"notificationservice",
+						"public",
+						"notification"
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "{{customerId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const jar = pm.cookies.jar();",
+					"",
+					"jar.clear(pm.request.url, function (error) {",
+					"  // error - <Error>",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://arch.homework/api",
+			"type": "string"
+		},
+		{
+			"key": "customerId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product1Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product2Id",
+			"value": ""
+		},
+		{
+			"key": "order2Id",
+			"value": ""
+		},
+		{
+			"key": "order1Id",
+			"value": ""
+		}
+	]
+}
