@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  version: 2.0.0
+  title: Cart service
+  description: Формирование покупательской корзины
+
+servers:
+  - url: '{schema}://arch.homework/api/cartservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: public
+    description: API, доступный пользователям
+  - name: private
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /public/line-item:
+    get:
+      tags:
+        - cart
+        - public
+      summary: Получение товарных позиции корзины покупателя.
+      description: Получение товарных позиции корзины со статусом FORMING.
+                Для авторизованого пользователя может быть только одна корзина со статусом FORMING.
+                Для сессии неавторизованного пользователя может быть только одна корзина со статусом FORMING.
+      operationId: getCustomerCartLineItems
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LineItemDto'
+    post:
+      tags:
+        - cart
+        - public
+      summary: Создание товарной позиции в корзине покупателя.
+      description: Создание товарной позиции в корзине со статусом FORMING.
+      operationId: newCustomerCartLineItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineItemDto'
+      responses:
+        '201':
+          description: Создана товарная позиция в корзине покупателя
+    patch:
+      tags:
+        - cart
+        - public
+      summary: Изменение количества в товарной позиции корзины покупателя.
+      description: Изменение количества в товарной позиции корзины покупателя.
+      operationId: updateCustomerCartLineItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineItemDto'
+      responses:
+        '204':
+          description: Изменение количества в товарной позиции корзины покупателя.
+    delete:
+      tags:
+        - cart
+        - public
+      summary: Удаление товарной позиции из корзины покупателя.
+      description: Удаление товарной позиции из корзины покупателя.
+      operationId: deleteCustomerCartLineItem
+      responses:
+        '204':
+          description: Удалена товарная позиция из корзины покупателя
+  /public/cart:
+    get:
+      tags:
+        - cart
+        - public
+      summary: Получение пользователем информации о корзине со статусом FORMING.
+      description: Получение пользователем информации о корзине со статусом FORMING.
+      operationId: getCustomerCart
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+                description: Идентификатор пользовательской коризны со статусом FORMING.
+        '404':
+          description: Пользовательской корзины со статусом FORMING нет.
+  /private/cart/{id}:
+    get:
+      tags:
+        - cart
+        - private
+      summary: Получение содержимого корзины.
+      description: Получение содержимого корзины.
+      operationId: getCart
+      parameters:
+        - name: id
+          description: Идентификатор корзины
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDto'
+  /private/cart/{id}/status:
+    patch:
+      tags:
+        - cart
+        - private
+      summary: Установка статуса корзины в процессе оформления заказа.
+      description: Установка статуса корзины в процессе выполнения SAGA оформления заказа.
+        В процессе выполнении операции checkout пользовательская корзина со статусом FORMING переводится
+        в статус ORDER_PENDING. В случае успешного выполнения pivotal операции (confirmPayment) корзина
+        переводится в статус ORDERED.
+        Иначе, компенсирующей операцией статус переводится в ORDER_FAILED.
+      operationId: updateCartStatus
+      parameters:
+        - name: id
+          description: Идентификатор корзины
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartStatusDto'
+      responses:
+        '204':
+          description: Статус корзины установлен.
+components:
+  schemas:
+    CartDto:
+      description: Корзина
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор корзины
+        status:
+          $ref: '#/components/schemas/CartStatusDto'
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemDto'
+    CartStatusDto:
+      description: Статус корзины |
+        `FORMING` - пользователь формирует корзину;
+        `ORDER_PENDING` - запущен процесс оформления заказа (checkout);
+        `ORDERED` - заказ оформлен и оплачен успешно;
+        `ORDER_FAILED` - процесс заказа завершился неудачно.
+      type: string
+      enum:
+        - FORMING
+        - ORDER_PENDING
+        - ORDERED
+        - ORDER_FAILED
+    LineItemDto:
+      description: Товарная позиция корзины
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество товара
+          default: 1
