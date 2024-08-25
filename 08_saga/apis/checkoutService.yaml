@@ -77,6 +77,10 @@ components:
       description: Запрос оформления заказа
       type: object
       properties:
+        customerId:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя
         paymentWay:
           $ref: '#/components/schemas/PaymentWayDto'
         deliveryAddress:
