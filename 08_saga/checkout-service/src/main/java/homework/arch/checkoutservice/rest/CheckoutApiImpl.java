@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static homework.arch.checkoutservice.client.cart.dto.generated.CartStatusDto.ORDER_PENDING;
+import static homework.arch.checkoutservice.client.cart.dto.generated.CartStatusDto.ORDERED;
+import static homework.arch.checkoutservice.client.cart.dto.generated.CartStatusDto.ORDER_FAILED;
+import static homework.arch.checkoutservice.client.order.dto.generated.OrderStatusDto.CHARGED;
+import static homework.arch.checkoutservice.client.order.dto.generated.OrderStatusDto.FAILED;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,10 +73,15 @@ public class CheckoutApiImpl implements CheckoutApi {
         payment.setConfirmedTimestamp(LocalDateTime.now());
         if (paymentConfirmationDto.getPaymentStatus() == PaymentConfirmationDto.PaymentStatusEnum.PROCESSED) {
             payment.setStatus(OrderPaymentEntity.PaymentStatus.DONE);
-            // TODO: cart, order, reservation commits
+            // cart, order commits:
+            cartClient.updateCartStatus(payment.getCartId(), ORDERED.getValue());
+            orderClient.updateOrderStatus(payment.getOrderId(), CHARGED.getValue());
         } else {
             payment.setStatus(OrderPaymentEntity.PaymentStatus.FAILED);
-            // TODO: cart, order, reservation rollback updates in reverse order
+            // cart, order, reservation rollback updates in reverse order:
+            stockClient.cancelProductReserveForOrder(new ReserveDto().orderId(payment.getOrderId()));
+            orderClient.updateOrderStatus(payment.getOrderId(), FAILED.getValue());
+            cartClient.updateCartStatus(payment.getCartId(), ORDER_FAILED.getValue());
         }
         orderPaymentRepository.save(payment);
         return ResponseEntity.noContent().build();
@@ -89,4 +98,6 @@ public class CheckoutApiImpl implements CheckoutApi {
     private String getPaymentSystemRef(OrderPaymentEntity payment) {
         return paymentSystemUrl;
     }
+
+    // TODO: implement API client calls with retries on retriable / logging on non retriable errors
 }
