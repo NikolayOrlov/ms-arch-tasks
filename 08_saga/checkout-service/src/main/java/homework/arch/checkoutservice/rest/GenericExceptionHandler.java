@@ -1,5 +1,6 @@
 package homework.arch.checkoutservice.rest;
 
+import homework.arch.checkoutservice.exception.CheckoutException;
 import homework.arch.checkoutservice.exception.NotFoundException;
 import homework.arch.checkoutservice.exception.NotSufficientFundsException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,5 +21,10 @@ public class GenericExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(final Exception ex, final WebRequest request) {
         return new ResponseEntity<>("NotFound: %s".formatted(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CheckoutException.class)
+    public ResponseEntity<?> handleCheckoutException(final Exception ex, final WebRequest request) {
+        return new ResponseEntity<>("Failed: %s".formatted(ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
