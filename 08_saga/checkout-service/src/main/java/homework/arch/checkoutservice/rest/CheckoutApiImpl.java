@@ -6,7 +6,7 @@ import homework.arch.checkoutservice.api.dto.generated.PaymentConfirmationDto;
 import homework.arch.checkoutservice.api.dto.generated.PaymentWayDto;
 import homework.arch.checkoutservice.api.generated.CheckoutApi;
 import homework.arch.checkoutservice.mapper.Mapper;
-import homework.arch.checkoutservice.persistence.OrderPaymentEntity;
+import homework.arch.checkoutservice.persistence.CheckoutEntity;
 import homework.arch.checkoutservice.saga.CheckoutSagaOrchestrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class CheckoutApiImpl implements CheckoutApi {
         return ResponseEntity.noContent().build();
     }
 
-    private String getPaymentSystemRef(OrderPaymentEntity payment) {
+    private String getPaymentSystemRef(CheckoutEntity payment) {
         return paymentSystemUrl;
     }
 }

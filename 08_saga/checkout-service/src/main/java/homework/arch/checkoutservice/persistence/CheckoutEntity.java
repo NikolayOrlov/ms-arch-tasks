@@ -1,7 +1,9 @@
 package homework.arch.checkoutservice.persistence;
 
+import homework.arch.checkoutservice.client.cart.dto.generated.CartDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderPaymentEntity {
+public class CheckoutEntity {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.AUTO)
     private UUID id;
@@ -39,4 +41,7 @@ public class OrderPaymentEntity {
     public enum PaymentStatus {
         PENDING, DONE, FAILED
     }
+
+    @Transient
+    private CartDto cartDto;
 }

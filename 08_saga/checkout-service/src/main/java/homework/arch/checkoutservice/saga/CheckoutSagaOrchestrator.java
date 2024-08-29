@@ -2,27 +2,24 @@ package homework.arch.checkoutservice.saga;
 
 import homework.arch.checkoutservice.api.dto.generated.CheckoutDto;
 import homework.arch.checkoutservice.api.dto.generated.PaymentConfirmationDto;
-import homework.arch.checkoutservice.client.cart.dto.generated.LineItemDto;
+import homework.arch.checkoutservice.client.cart.dto.generated.CartDto;
+import homework.arch.checkoutservice.client.cart.dto.generated.CartStatusDto;
 import homework.arch.checkoutservice.client.cart.generated.CartApiClient;
 import homework.arch.checkoutservice.client.order.dto.generated.OrderDto;
+import homework.arch.checkoutservice.client.order.dto.generated.OrderStatusDto;
 import homework.arch.checkoutservice.client.order.generated.OrderApiClient;
 import homework.arch.checkoutservice.client.stock.dto.generated.ReserveDto;
 import homework.arch.checkoutservice.client.stock.generated.StockApiClient;
 import homework.arch.checkoutservice.exception.CheckoutException;
 import homework.arch.checkoutservice.mapper.Mapper;
-import homework.arch.checkoutservice.persistence.OrderPaymentEntity;
-import homework.arch.checkoutservice.persistence.OrderPaymentRepository;
+import homework.arch.checkoutservice.persistence.CheckoutEntity;
+import homework.arch.checkoutservice.persistence.CheckoutRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-
-import static homework.arch.checkoutservice.client.cart.dto.generated.CartStatusDto.*;
-import static homework.arch.checkoutservice.client.order.dto.generated.OrderStatusDto.CHARGED;
-import static homework.arch.checkoutservice.client.order.dto.generated.OrderStatusDto.FAILED;
 
 @Component
 @RequiredArgsConstructor
@@ -31,88 +28,155 @@ public class CheckoutSagaOrchestrator {
     private final CartApiClient cartClient;
     private final OrderApiClient orderClient;
     private final StockApiClient stockClient;
-    private final OrderPaymentRepository orderPaymentRepository;
+    private final CheckoutRepository checkoutRepository;
     private final Mapper mapper;
 
-    public OrderPaymentEntity checkout(CheckoutDto checkoutDto) {
+    public CheckoutEntity checkout(CheckoutDto checkoutDto) {
         var customerId = checkoutDto.getCustomerId();
-        var checkoutContext = newCheckoutContext(customerId);
-        if (startCartOrdering(checkoutContext)) {
-            if (updateCheckoutContextWithCart(checkoutContext)) {
-                var orderId = orderClient.createOrder(new OrderDto()
-                                .lineItems(checkoutContext.getCartDto().getLineItems().stream().map(mapper::toOrderServiceDto).toList())
-                                .price(checkoutContext.getCartDto().getPrice()))
-                        .getBody();
-                stockClient.reserveProducts(getReserveDto(checkoutContext.getCartId(), orderId, checkoutContext.getCartDto().getLineItems()));
-                // TODO: cart, order, reservation rollback updates in reverse order on any failure
-                return orderPaymentRepository.save(OrderPaymentEntity.builder()
-                        .orderId(orderId)
-                        .cartId(checkoutContext.getCartId())
-                        .amount(checkoutContext.getCartDto().getPrice())
-                        .status(OrderPaymentEntity.PaymentStatus.PENDING)
-                        .requestedTimestamp(LocalDateTime.now())
-                        .build());
+        var checkout = newCheckout(customerId);
+        if (startCartOrdering(checkout)) {
+            if (getCart(checkout) && createOrder(checkout)) {
+                if (reserveProductsForOrder(checkout)) {
+                    return checkoutRepository.save(checkout);
+                }
+                compensateOrderCreation(checkout);
             }
+            compensateCartOrderingStart(checkout);
         }
-        throw new CheckoutException("Can't checkout cart %s".formatted(checkoutContext.getCartId()));
+        throw new CheckoutException("Can't checkout cart %s".formatted(checkout.getCartId()));
     }
 
-    protected CheckoutContext newCheckoutContext(UUID customerId) {
-        var ctx = new CheckoutContext();
-        ctx.setCartId(cartClient.getCustomerCart(customerId).getBody());
-        return ctx;
+    public void confirmPayment(String paymentId, PaymentConfirmationDto paymentConfirmationDto) {
+        var checkout = checkoutRepository.findById(UUID.fromString(paymentId)).get();
+        checkout.setConfirmedTimestamp(LocalDateTime.now());
+        if (paymentConfirmationDto.getPaymentStatus() == PaymentConfirmationDto.PaymentStatusEnum.PROCESSED) {
+            checkout.setStatus(CheckoutEntity.PaymentStatus.DONE);
+            commitOrderCharged(checkout);
+            commitCartOrdered(checkout);
+        } else {
+            checkout.setStatus(CheckoutEntity.PaymentStatus.FAILED);
+            compensateProductReserveForOrder(checkout);
+            compensateOrderCreation(checkout);
+            compensateCartOrderingStart(checkout);
+        }
+        checkoutRepository.save(checkout);
     }
 
-    protected boolean startCartOrdering(CheckoutContext checkoutContext) {
+    protected CheckoutEntity newCheckout(UUID customerId) {
+        var checkout = new CheckoutEntity();
+        checkout.setCartId(cartClient.getCustomerCart(customerId).getBody());
+        checkout.setRequestedTimestamp(LocalDateTime.now());
+        checkout.setStatus(CheckoutEntity.PaymentStatus.PENDING);
+        return checkout;
+    }
+
+    protected boolean reserveProductsForOrder(CheckoutEntity checkout) {
         try {
-            return cartClient.updateCartStatus(checkoutContext.getCartId(), ORDER_PENDING.getValue())
-                    .getStatusCode().is2xxSuccessful();
+            var reserveDto = new ReserveDto()
+                    .cartId(checkout.getCartId())
+                    .orderId(checkout.getOrderId())
+                    .products(checkout.getCartDto().getLineItems().stream()
+                            .map(mapper::toStockServiceDto).toList());
+            return stockClient.reserveProducts(reserveDto).getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkoutContext.getCartId());
+            log.warn("{}", checkout.getCartId());
             return false;
         }
     }
 
-    protected boolean updateCheckoutContextWithCart(CheckoutContext checkoutContext) {
+    protected boolean compensateProductReserveForOrder(CheckoutEntity checkout) {
         try {
-            var cartResponse = cartClient.getCart(checkoutContext.getCartId());
+            return stockClient.cancelProductReserveForOrder(new ReserveDto().orderId(checkout.getOrderId()))
+                    .getStatusCode().is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getOrderId());
+            return false;
+        }
+    }
+
+    protected boolean startCartOrdering(CheckoutEntity checkout) {
+        try {
+            return cartClient.updateCartStatus(checkout.getCartId(), CartStatusDto.ORDER_PENDING.getValue())
+                    .getStatusCode().is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getCartId());
+            return false;
+        }
+    }
+
+    protected boolean compensateCartOrderingStart(CheckoutEntity checkout) {
+        try {
+            return cartClient.updateCartStatus(checkout.getCartId(), CartStatusDto.FORMING.getValue()).getStatusCode().is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getCartId());
+            return false;
+        }
+    }
+
+    protected boolean getCart(CheckoutEntity checkout) {
+        try {
+            var cartResponse = cartClient.getCart(checkout.getCartId());
             if (cartResponse.getStatusCode().is2xxSuccessful()) {
-                checkoutContext.setCartDto(cartResponse.getBody());
+                CartDto cartDto = cartResponse.getBody();
+                if (cartDto == null || cartDto.getStatus() != CartStatusDto.ORDER_PENDING) {
+                    log.warn("{}", cartDto);
+                    throw new IllegalStateException();
+                }
+                checkout.setAmount(cartDto.getPrice());
+                checkout.setCartDto(cartDto);
                 return true;
             }
-            // TODO: retries on retriable error statuses
         } catch (Exception ex) {
-            log.warn("{}", checkoutContext.getCartId());
+            log.warn("{}", checkout.getCartId());
         }
         return false;
     }
 
-    public void confirmPayment(String paymentId, PaymentConfirmationDto paymentConfirmationDto) {
-        var payment = orderPaymentRepository.findById(UUID.fromString(paymentId)).get();
-        payment.setConfirmedTimestamp(LocalDateTime.now());
-        if (paymentConfirmationDto.getPaymentStatus() == PaymentConfirmationDto.PaymentStatusEnum.PROCESSED) {
-            payment.setStatus(OrderPaymentEntity.PaymentStatus.DONE);
-            // cart, order commits:
-            cartClient.updateCartStatus(payment.getCartId(), ORDERED.getValue());
-            orderClient.updateOrderStatus(payment.getOrderId(), CHARGED.getValue());
-        } else {
-            payment.setStatus(OrderPaymentEntity.PaymentStatus.FAILED);
-            // cart, order, reservation rollback updates in reverse order:
-            stockClient.cancelProductReserveForOrder(new ReserveDto().orderId(payment.getOrderId()));
-            orderClient.updateOrderStatus(payment.getOrderId(), FAILED.getValue());
-            cartClient.updateCartStatus(payment.getCartId(), ORDER_FAILED.getValue());
+    protected boolean createOrder(CheckoutEntity checkout) {
+        try {
+            var cartDto = checkout.getCartDto();
+            var orderResponse = orderClient.createOrder(new OrderDto()
+                    .lineItems(cartDto.getLineItems().stream().map(mapper::toOrderServiceDto).toList())
+                    .price(cartDto.getPrice()));
+            if (orderResponse.getStatusCode().is2xxSuccessful()) {
+                checkout.setOrderId(orderResponse.getBody());
+                return true;
+            }
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getCartId());
         }
-        orderPaymentRepository.save(payment);
+        return false;
     }
 
-    protected ReserveDto getReserveDto(UUID cartId, UUID orderId, List<LineItemDto> lineItems) {
-        return new ReserveDto()
-                .cartId(cartId)
-                .orderId(orderId)
-                .products(lineItems.stream().map(mapper::toStockServiceDto).toList());
-
+    protected boolean compensateOrderCreation(CheckoutEntity checkout) {
+        try {
+            return orderClient.updateOrderStatus(checkout.getOrderId(), OrderStatusDto.FAILED.getValue())
+                    .getStatusCode().is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getOrderId());
+            return false;
+        }
     }
 
+    protected boolean commitOrderCharged(CheckoutEntity checkout) {
+        try {
+            // TODO: do in retries
+            return orderClient.updateOrderStatus(checkout.getOrderId(), OrderStatusDto.CHARGED.getValue())
+                                                .getStatusCode().is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getOrderId());
+            return false;
+        }
+    }
 
-    // TODO: implement API client calls with retries on retriable / logging on non retriable errors
+    protected boolean commitCartOrdered(CheckoutEntity checkout) {
+        try {
+            // TODO: do in retries
+            return cartClient.updateCartStatus(checkout.getCartId(), CartStatusDto.ORDERED.getValue()).getStatusCode()
+                                                .is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("{}", checkout.getCartId());
+            return false;
+        }
+    }
 }
