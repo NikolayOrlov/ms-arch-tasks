@@ -26,6 +26,8 @@ public class CheckoutEntity {
     @UuidGenerator(style = UuidGenerator.Style.AUTO)
     private UUID id;
 
+    private UUID customerId;
+
     private UUID orderId;
 
     private UUID cartId;

@@ -30,8 +30,9 @@ public class CartApiImpl implements CartApi {
         var customerId = lineItemDto.getCustomerId(); // TODO: to be replaced by data from auth header
         var cart = cartRepository.findByCustomerIdAndStatus(customerId, CartEntity.CartStatus.FORMING)
                 .orElse(new CartEntity().setCustomerId(customerId).setStatus(CartEntity.CartStatus.FORMING));
-        cart.getLineItems().add(mapper.toEntity(lineItemDto)); // TODO: price is supposed to come from internal API
-        cartRepository.save(cart);
+        cart.getLineItems().add(mapper.toDomain(lineItemDto)); // TODO: price is supposed to come from internal API
+        cart =  cartRepository.save(cart);
+        log.debug("Added line item to cart {} for product {}", cart.getId(), lineItemDto.getProductId());
         return ResponseEntity.noContent().build();
     }
 
@@ -44,8 +45,10 @@ public class CartApiImpl implements CartApi {
 
     @Override
     public ResponseEntity<CartDto> getCart(UUID cartId) {
-        return ResponseEntity.ok(mapper.toDto(cartRepository.findById(cartId)
-                                    .orElseThrow(() -> new NotFoundException(cartId.toString()))));
+        var cart = mapper.toDto(cartRepository.findById(cartId)
+                                    .orElseThrow(() -> new NotFoundException(cartId.toString())));
+        log.debug("Get cart data for {}", cartId);
+        return ResponseEntity.ok(cart);
     }
 
     @Override
@@ -57,8 +60,8 @@ public class CartApiImpl implements CartApi {
 
     @Override
     @Transactional
-    public ResponseEntity<Void> updateCartStatus(UUID cartId, String body) {
-        var newStatus = CartEntity.CartStatus.valueOf(body);
+    public ResponseEntity<Void> updateCartStatus(UUID cartId, String newStatusAsString) {
+        var newStatus = CartEntity.CartStatus.valueOf(newStatusAsString);
         var cart = cartRepository.findById(cartId).orElseThrow(() -> new NotFoundException(cartId.toString()));
         if (newStatus == CartEntity.CartStatus.ORDER_PENDING && cart.getStatus() != CartEntity.CartStatus.FORMING
             || newStatus == CartEntity.CartStatus.ORDERED && cart.getStatus() != CartEntity.CartStatus.ORDER_PENDING) {
@@ -66,6 +69,7 @@ public class CartApiImpl implements CartApi {
         }
         cart.setStatus(newStatus);
         cartRepository.save(cart);
+        log.debug("Cart {} set to status '{}'", cartId, newStatusAsString);
         return ResponseEntity.noContent().build();
     }
 

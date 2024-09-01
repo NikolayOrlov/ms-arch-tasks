@@ -64,6 +64,7 @@ public class CheckoutSagaOrchestrator {
 
     protected CheckoutEntity newCheckout(UUID customerId) {
         var checkout = new CheckoutEntity();
+        checkout.setCustomerId(customerId);
         checkout.setCartId(UUID.fromString(cartClient.getCustomerCart(customerId).getBody()));
         checkout.setRequestedTimestamp(LocalDateTime.now());
         checkout.setStatus(CheckoutEntity.PaymentStatus.PENDING);
@@ -136,10 +137,11 @@ public class CheckoutSagaOrchestrator {
         try {
             var cartDto = checkout.getCartDto();
             var orderResponse = orderClient.createOrder(new OrderDto()
-                    .lineItems(cartDto.getLineItems().stream().map(mapper::toOrderServiceDto).toList())
-                    .price(cartDto.getPrice()));
+                            .customerId(checkout.getCustomerId())
+                            .lineItems(cartDto.getLineItems().stream().map(mapper::toOrderServiceDto).toList())
+                            .price(cartDto.getPrice()));
             if (orderResponse.getStatusCode().is2xxSuccessful()) {
-                checkout.setOrderId(orderResponse.getBody());
+                checkout.setOrderId(UUID.fromString(orderResponse.getBody()));
                 return true;
             }
         } catch (Exception ex) {

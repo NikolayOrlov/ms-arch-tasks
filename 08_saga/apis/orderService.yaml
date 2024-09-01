@@ -54,11 +54,10 @@ paths:
         '201':
           description: Создан заказ в статусе CHARGE_PENDING.
           content:
-            application/json:
+            application/text:
               schema:
                 type: string
                 description: Идентификатор заказа
-                format: uuid
 
   /public/order/{id}:
     get:
@@ -119,6 +118,10 @@ components:
           type: string
           format: uuid
           description: Идентификатор заказа
+        customerId:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя
         status:
           $ref: '#/components/schemas/OrderStatusDto'
         lineItems:

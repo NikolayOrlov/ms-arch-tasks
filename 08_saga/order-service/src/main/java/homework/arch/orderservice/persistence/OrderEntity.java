@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class OrderEntity {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.AUTO)
@@ -30,7 +32,9 @@ public class OrderEntity {
 
     private OrderStatus status;
 
+    // TODO: to add line items
+
     public enum OrderStatus {
-        CHARGED, FAILED
+        CHARGE_PENDING, CHARGED, FAILED, READY_FOR_DELIVERY, SENT, DELIVERED
     }
 }

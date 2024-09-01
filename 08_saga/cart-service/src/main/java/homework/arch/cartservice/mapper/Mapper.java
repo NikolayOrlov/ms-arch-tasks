@@ -25,5 +25,5 @@ public interface Mapper {
 
     LineItemDto toDto(LineItemEntity entity);
 
-    LineItemEntity toEntity(LineItemDto dto);
+    LineItemEntity toDomain(LineItemDto dto);
 }
