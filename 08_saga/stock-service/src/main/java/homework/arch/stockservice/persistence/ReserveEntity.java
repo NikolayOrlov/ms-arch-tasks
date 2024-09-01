@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,20 +17,19 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ReserveEntity {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.AUTO)
     private UUID id;
 
-    private UUID customerId;
+    private UUID cartId;
 
-    private BigDecimal price;
+    private UUID orderId;
 
-    private LocalDateTime date;
+    private UUID productId;
 
-    private ReserveStatus status;
+    private LocalDateTime reservationTimestamp = LocalDateTime.now();
 
-    public enum ReserveStatus {
-        CHARGED, FAILED
-    }
+    private int quantity;
 }

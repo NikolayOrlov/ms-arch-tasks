@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CheckoutApiImpl implements CheckoutApi {
     private final CheckoutSagaOrchestrator checkoutSagaOrchestrator;
     private final Mapper mapper;
-    @Value("paymentSystemUrl:")
+    @Value("${paymentSystemUrl:}")
     private String paymentSystemUrl;
 
     @Override
