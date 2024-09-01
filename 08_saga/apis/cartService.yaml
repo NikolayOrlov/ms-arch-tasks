@@ -63,7 +63,7 @@ paths:
       responses:
         '201':
           description: Создана товарная позиция в корзине покупателя
-    patch:
+    put:
       tags:
         - cart
         - public
@@ -129,7 +129,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CartDto'
   /private/cart/{id}/status:
-    patch:
+    put:
       tags:
         - cart
         - private

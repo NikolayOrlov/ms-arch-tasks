@@ -80,7 +80,7 @@ public class CheckoutSagaOrchestrator {
                             .map(mapper::toStockServiceDto).toList());
             return stockClient.reserveProducts(reserveDto).getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getCartId());
+            log.warn("Can't reserve products for order {}", checkout.getOrderId());
             return false;
         }
     }
@@ -90,7 +90,7 @@ public class CheckoutSagaOrchestrator {
             return stockClient.cancelProductReserveForOrder(new ReserveDto().orderId(checkout.getOrderId()))
                     .getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getOrderId());
+            log.warn("Can't cancel product reservation for order {}", checkout.getOrderId());
             return false;
         }
     }
@@ -100,7 +100,7 @@ public class CheckoutSagaOrchestrator {
             return cartClient.updateCartStatus(checkout.getCartId(), CartStatusDto.ORDER_PENDING.getValue())
                     .getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getCartId());
+            log.warn("Can't start cart ordering for cart {}", checkout.getCartId());
             return false;
         }
     }
@@ -109,7 +109,7 @@ public class CheckoutSagaOrchestrator {
         try {
             return cartClient.updateCartStatus(checkout.getCartId(), CartStatusDto.FORMING.getValue()).getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getCartId());
+            log.warn("Can't compensate cart ordering start for cart {}", checkout.getCartId());
             return false;
         }
     }
@@ -120,7 +120,7 @@ public class CheckoutSagaOrchestrator {
             if (cartResponse.getStatusCode().is2xxSuccessful()) {
                 CartDto cartDto = cartResponse.getBody();
                 if (cartDto == null || cartDto.getStatus() != CartStatusDto.ORDER_PENDING) {
-                    log.warn("{}", cartDto);
+                    log.warn("Get cart returns unexpected value: {}", cartDto);
                     throw new IllegalStateException();
                 }
                 checkout.setAmount(cartDto.getPrice());
@@ -128,7 +128,7 @@ public class CheckoutSagaOrchestrator {
                 return true;
             }
         } catch (Exception ex) {
-            log.warn("{}", checkout.getCartId());
+            log.warn("Can't get cart {}", checkout.getCartId());
         }
         return false;
     }
@@ -145,7 +145,7 @@ public class CheckoutSagaOrchestrator {
                 return true;
             }
         } catch (Exception ex) {
-            log.warn("{}", checkout.getCartId());
+            log.warn("Can't create order for cart {}", checkout.getCartId());
         }
         return false;
     }
@@ -155,7 +155,7 @@ public class CheckoutSagaOrchestrator {
             return orderClient.updateOrderStatus(checkout.getOrderId(), OrderStatusDto.FAILED.getValue())
                     .getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getOrderId());
+            log.warn("Can't compensate order {} creation", checkout.getOrderId());
             return false;
         }
     }
@@ -166,7 +166,7 @@ public class CheckoutSagaOrchestrator {
             return orderClient.updateOrderStatus(checkout.getOrderId(), OrderStatusDto.CHARGED.getValue())
                                                 .getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getOrderId());
+            log.warn("Can't commit order {} charging", checkout.getOrderId());
             return false;
         }
     }
@@ -177,7 +177,7 @@ public class CheckoutSagaOrchestrator {
             return cartClient.updateCartStatus(checkout.getCartId(), CartStatusDto.ORDERED.getValue()).getStatusCode()
                                                 .is2xxSuccessful();
         } catch (Exception ex) {
-            log.warn("{}", checkout.getCartId());
+            log.warn("Can't commit cart {} ordering", checkout.getCartId());
             return false;
         }
     }

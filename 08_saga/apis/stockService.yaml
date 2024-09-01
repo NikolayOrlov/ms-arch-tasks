@@ -40,7 +40,7 @@ paths:
           description: Товар зарезервирован.
         '404':
           description: Необходимый для резервирования товар на складе отсутствует.
-    patch:
+    put:
       tags:
         - stock
         - private

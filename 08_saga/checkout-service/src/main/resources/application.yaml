@@ -23,6 +23,8 @@ management:
     distribution:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+order.url: orderservice:8080/api/orderservice
 cart.url: cartservice:8080/api/cartservice
+stock.url: stockservice:8080/api/stockservice
 logging.level.homework.arch: DEBUG
 spring.cloud.discovery.client.composite-indicator.enabled: false

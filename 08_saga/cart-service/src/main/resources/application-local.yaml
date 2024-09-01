@@ -1,2 +1,3 @@
 server.port: 8081
 logging.level.homework.arch: DEBUG
+stock.url: localhost:8083/api/stockservice

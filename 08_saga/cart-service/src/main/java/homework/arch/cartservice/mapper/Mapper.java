@@ -26,4 +26,7 @@ public interface Mapper {
     LineItemDto toDto(LineItemEntity entity);
 
     LineItemEntity toDomain(LineItemDto dto);
+
+    homework.arch.cartservice.client.stock.dto.generated.ReservedProductDto toStockServiceDto(
+            LineItemDto dto);
 }

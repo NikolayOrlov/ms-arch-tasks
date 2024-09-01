@@ -3,6 +3,8 @@ package homework.arch.cartservice.rest;
 import homework.arch.cartservice.api.dto.generated.CartDto;
 import homework.arch.cartservice.api.dto.generated.LineItemDto;
 import homework.arch.cartservice.api.generated.CartApi;
+import homework.arch.cartservice.client.stock.dto.generated.ReserveDto;
+import homework.arch.cartservice.client.stock.generated.StockApiClient;
 import homework.arch.cartservice.exception.CartException;
 import homework.arch.cartservice.exception.NotFoundException;
 import homework.arch.cartservice.mapper.Mapper;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class CartApiImpl implements CartApi {
     private final CartRepository cartRepository;
     private final Mapper mapper;
+    private final StockApiClient stockClient;
 
     @Override
     @Transactional
@@ -32,6 +35,7 @@ public class CartApiImpl implements CartApi {
                 .orElse(new CartEntity().setCustomerId(customerId).setStatus(CartEntity.CartStatus.FORMING));
         cart.getLineItems().add(mapper.toDomain(lineItemDto)); // TODO: price is supposed to come from internal API
         cart =  cartRepository.save(cart);
+        reserveProductsForCart(cart.getId(), lineItemDto);
         log.debug("Added line item to cart {} for product {}", cart.getId(), lineItemDto.getProductId());
         return ResponseEntity.noContent().build();
     }
@@ -73,5 +77,15 @@ public class CartApiImpl implements CartApi {
         return ResponseEntity.noContent().build();
     }
 
-
+    protected void reserveProductsForCart(UUID cartId, LineItemDto lineItemDto) {
+        try {
+            var reserveDto = new ReserveDto()
+                                    .cartId(cartId)
+                                    .products(List.of(mapper.toStockServiceDto(lineItemDto)));
+            stockClient.reserveProducts(reserveDto).getStatusCode().is2xxSuccessful();
+        } catch (Exception ex) {
+            log.warn("Can't reserve products for cart {}", cartId);
+            throw ex;
+        }
+    }
 }
