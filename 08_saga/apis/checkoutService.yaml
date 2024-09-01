@@ -77,6 +77,7 @@ components:
       description: Запрос оформления заказа
       type: object
       properties:
+        # to be replaced by an auth header attribute:
         customerId:
           type: string
           format: uuid

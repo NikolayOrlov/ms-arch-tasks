@@ -29,6 +29,15 @@ paths:
                 Для авторизованого пользователя может быть только одна корзина со статусом FORMING.
                 Для сессии неавторизованного пользователя может быть только одна корзина со статусом FORMING.
       operationId: getCustomerCartLineItems
+      # to be replaced by an auth header attribute:
+      parameters:
+        - name: customer_id
+          description: Идентификатор покупателя
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: ''
@@ -70,21 +79,11 @@ paths:
       responses:
         '204':
           description: Изменение количества в товарной позиции корзины покупателя.
-    delete:
-      tags:
-        - cart
-        - public
-      summary: Удаление товарной позиции из корзины покупателя.
-      description: Удаление товарной позиции из корзины покупателя.
-      operationId: deleteCustomerCartLineItem
-      responses:
-        '204':
-          description: Удалена товарная позиция из корзины покупателя
-  /public/cart:
+  /private/cart:
     get:
       tags:
         - cart
-        - public
+        - private
       summary: Получение пользователем информации о корзине со статусом FORMING.
       description: Получение пользователем информации о корзине со статусом FORMING.
       operationId: getCustomerCart
@@ -103,7 +102,6 @@ paths:
             application/text:
               schema:
                 type: string
-                format: uuid
                 description: Идентификатор пользовательской корзины со статусом FORMING.
         '404':
           description: Пользовательской корзины со статусом FORMING нет.
@@ -194,9 +192,14 @@ components:
       description: Товарная позиция корзины
       type: object
       required:
-        - product_id
+        - productId
       properties:
-        product_id:
+        # to be replaced by an auth header attribute:
+        customerId:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя
+        productId:
           type: string
           format: uuid
           description: Идентификатор товара

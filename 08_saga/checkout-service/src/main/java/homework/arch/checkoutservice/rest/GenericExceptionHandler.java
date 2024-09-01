@@ -20,7 +20,7 @@ public class GenericExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(final Exception ex, final WebRequest request) {
-        return new ResponseEntity<>("NotFound: %s".formatted(ex.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("NotFound: %s".formatted(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CheckoutException.class)

@@ -26,7 +26,7 @@ public class CheckoutApiImpl implements CheckoutApi {
 
     @Override
     public ResponseEntity<Checkout200Response> checkout(CheckoutDto checkoutDto) {
-        var payment = checkoutSagaOrchestrator.checkout(checkoutDto);
+        var payment = checkoutSagaOrchestrator.startCheckoutProcess(checkoutDto);
         return ResponseEntity.ok(new Checkout200Response()
                 .payment(mapper.toDto(payment)
                                     .paymentWay(new PaymentWayDto().type(PaymentWayDto.TypeEnum.CARD)))
@@ -35,7 +35,7 @@ public class CheckoutApiImpl implements CheckoutApi {
 
     @Override
     public ResponseEntity<Void> confirmPayment(String paymentId, PaymentConfirmationDto paymentConfirmationDto) {
-        checkoutSagaOrchestrator.confirmPayment(paymentId, paymentConfirmationDto);
+        checkoutSagaOrchestrator.pivotalConfirmPayment(paymentId, paymentConfirmationDto);
         return ResponseEntity.noContent().build();
     }
 

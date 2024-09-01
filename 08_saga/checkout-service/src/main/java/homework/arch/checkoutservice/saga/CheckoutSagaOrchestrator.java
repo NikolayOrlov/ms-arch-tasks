@@ -31,8 +31,8 @@ public class CheckoutSagaOrchestrator {
     private final CheckoutRepository checkoutRepository;
     private final Mapper mapper;
 
-    public CheckoutEntity checkout(CheckoutDto checkoutDto) {
-        var customerId = checkoutDto.getCustomerId();
+    public CheckoutEntity startCheckoutProcess(CheckoutDto checkoutDto) {
+        var customerId = checkoutDto.getCustomerId(); // TODO: to be replaced by data from auth header
         var checkout = newCheckout(customerId);
         if (startCartOrdering(checkout)) {
             if (getCart(checkout) && createOrder(checkout)) {
@@ -46,7 +46,7 @@ public class CheckoutSagaOrchestrator {
         throw new CheckoutException("Can't checkout cart %s".formatted(checkout.getCartId()));
     }
 
-    public void confirmPayment(String paymentId, PaymentConfirmationDto paymentConfirmationDto) {
+    public void pivotalConfirmPayment(String paymentId, PaymentConfirmationDto paymentConfirmationDto) {
         var checkout = checkoutRepository.findById(UUID.fromString(paymentId)).get();
         checkout.setConfirmedTimestamp(LocalDateTime.now());
         if (paymentConfirmationDto.getPaymentStatus() == PaymentConfirmationDto.PaymentStatusEnum.PROCESSED) {
@@ -64,7 +64,7 @@ public class CheckoutSagaOrchestrator {
 
     protected CheckoutEntity newCheckout(UUID customerId) {
         var checkout = new CheckoutEntity();
-        checkout.setCartId(cartClient.getCustomerCart(customerId).getBody());
+        checkout.setCartId(UUID.fromString(cartClient.getCustomerCart(customerId).getBody()));
         checkout.setRequestedTimestamp(LocalDateTime.now());
         checkout.setStatus(CheckoutEntity.PaymentStatus.PENDING);
         return checkout;
