@@ -38,7 +38,7 @@ public class StockApiImpl implements StockApi {
     @Override
     @Transactional
     public ResponseEntity<Void> reserveProducts(ReserveDto reserveDto) {
-        if (reserveDto.getCartId() == null || isEmpty(reserveDto.getProducts())) {
+        if (reserveDto.getCartId() == null) {
             throw new IllegalArgumentException();
         }
         if (reserveDto.getOrderId() == null) {
@@ -50,23 +50,12 @@ public class StockApiImpl implements StockApi {
                                                                                 .setQuantity(p.getQuantity())).toList());
             log.debug("Reserved for cart: {}", reserveDto);
         } else {
-            reserveRepository.saveAll(reserveDto.getProducts().stream()
-                                            .map(p -> getProductReserveOfCart(reserveDto.getCartId(), p)
-                                                            .setOrderId(reserveDto.getOrderId())
-                                                            .setReservationTimestamp(null))
-                                                        .toList());
+            reserveRepository.saveAll(reserveRepository.findAllByCartIdAndOrderIdIsNullAndReservationTimestampGreaterThan(reserveDto.getCartId(), LocalDateTime.now().minusMinutes(cartReserveMinutes)).stream()
+                            .peek(p -> p.setOrderId(reserveDto.getOrderId())
+                                    .setReservationTimestamp(null)).toList());
             log.debug("Reserved for order: {}", reserveDto);
         }
         return ResponseEntity.noContent().build();
-    }
-
-    private ReserveEntity getProductReserveOfCart(UUID cartId, ReservedProductDto reservedProductDto) {
-        var reserve = reserveRepository.findByProductIdAndCartIdAndOrderIdIsNullAndReservationTimestampGreaterThan(reservedProductDto.getProductId(), cartId, LocalDateTime.now().minusMinutes(cartReserveMinutes))
-                                .orElseThrow(() -> new NotFoundException("%s : %s ".formatted(cartId.toString(), reservedProductDto.getProductId())));
-        if (reserve.getQuantity() != reservedProductDto.getQuantity()) {
-            throw new NotFoundException("%s : %s : %d".formatted(cartId.toString(), reservedProductDto.getProductId(), reservedProductDto.getQuantity()));
-        }
-        return reserve;
     }
 
     @Override

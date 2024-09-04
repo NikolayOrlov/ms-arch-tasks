@@ -47,11 +47,11 @@ docker push gmnvnorlov/ms-arch-tasks-cartservice:2.0.0
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t stockservice:2.0.1 .
+docker build --platform linux/amd64 -t stockservice:2.0.2 .
 
-docker image tag stockservice:2.0.1 gmnvnorlov/ms-arch-tasks-stockservice:2.0.1
+docker image tag stockservice:2.0.2 gmnvnorlov/ms-arch-tasks-stockservice:2.0.2
 
-docker push gmnvnorlov/ms-arch-tasks-stockservice:2.0.1
+docker push gmnvnorlov/ms-arch-tasks-stockservice:2.0.2
 ```
 
 ### Для запуска приложения в k8s
