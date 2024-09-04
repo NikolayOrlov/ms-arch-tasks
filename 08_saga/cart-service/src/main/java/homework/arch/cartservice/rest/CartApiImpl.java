@@ -30,6 +30,7 @@ public class CartApiImpl implements CartApi {
     @Override
     @Transactional
     public ResponseEntity<Void> newCustomerCartLineItem(LineItemDto lineItemDto) {
+        // TODO: prevent creating new forming cart if there is one in status ORDER_PENDING
         var customerId = lineItemDto.getCustomerId(); // TODO: to be replaced by data from auth header
         var cart = cartRepository.findByCustomerIdAndStatus(customerId, CartEntity.CartStatus.FORMING)
                 .orElse(new CartEntity().setCustomerId(customerId).setStatus(CartEntity.CartStatus.FORMING));

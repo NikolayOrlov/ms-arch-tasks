@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 2.0.0
+  version: 2.0.1
   title: Order service
   description: Выполнение заказа
 
@@ -27,6 +27,14 @@ paths:
       summary: Получение пользователем информации о своих заказах.
       description: Получение пользователем информации о своих заказах.
       operationId: getCustomerOrders
+      parameters:
+        - name: customer_id
+          description: Идентификатор покупателя
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: ''

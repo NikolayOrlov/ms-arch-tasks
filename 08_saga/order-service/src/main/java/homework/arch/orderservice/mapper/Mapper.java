@@ -7,4 +7,5 @@ import org.mapstruct.MappingConstants;
 @org.mapstruct.Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface Mapper {
     OrderEntity toDomain(OrderDto dto);
+    OrderDto toDto(OrderEntity entity);
 }

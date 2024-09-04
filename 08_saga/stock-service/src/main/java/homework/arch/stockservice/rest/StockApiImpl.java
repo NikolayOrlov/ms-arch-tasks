@@ -1,5 +1,6 @@
 package homework.arch.stockservice.rest;
 
+import homework.arch.stockservice.api.dto.generated.GetReservations200Response;
 import homework.arch.stockservice.api.dto.generated.ReserveDto;
 import homework.arch.stockservice.api.dto.generated.ReservedProductDto;
 import homework.arch.stockservice.api.generated.StockApi;
@@ -15,8 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,5 +80,25 @@ public class StockApiImpl implements StockApi {
             log.warn("Reserve for order {} can't be cancelled due to not found reservations", reserveDto.getOrderId());
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<GetReservations200Response> getReservations(UUID productId) {
+        var reservations = productId == null ? reserveRepository.findAll() : reserveRepository.findAllByProductId(productId);
+        var inCarts = StreamSupport.stream(reservations.spliterator(), false)
+                        .filter(re -> isNull(re.getOrderId())
+                                && re.getReservationTimestamp().isAfter(LocalDateTime.now().minusMinutes(cartReserveMinutes))).toList();
+        var ordered = StreamSupport.stream(reservations.spliterator(), false).filter(re -> nonNull(re.getOrderId())).toList();
+        var inCartsByProductId = count(inCarts);
+        var orderedByProductId = count(ordered);
+        var result = new GetReservations200Response();
+        result.setInCarts(inCartsByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
+        result.setOrdered(orderedByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
+        return ResponseEntity.ok(result);
+    }
+
+    private Map<UUID, Integer> count(List<ReserveEntity> list) {
+        var inCartsByProductsId = list.stream().collect(Collectors.groupingBy(ReserveEntity::getProductId, Collectors.mapping(ReserveEntity::getQuantity, Collectors.reducing(Integer::sum))));
+        return inCartsByProductsId.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().orElse(0)));
     }
 }

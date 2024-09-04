@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface ReserveRepository extends CrudRepository<ReserveEntity, UUID> {
     Optional<ReserveEntity> findByProductIdAndCartIdAndOrderIdIsNullAndReservationTimestampGreaterThan(UUID productId, UUID cartId, LocalDateTime reservationTimestamp);
     List<ReserveEntity> findAllByOrderId(UUID orderId);
+    List<ReserveEntity> findAllByProductId(UUID productId);
 }
