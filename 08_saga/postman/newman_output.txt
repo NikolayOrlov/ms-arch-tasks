@@ -1,0 +1,117 @@
+newman
+
+SAGA
+
+→ добавление в корзину первого продукта
+  POST http://arch.homework/api/cartservice/public/line-item [204 No Content, 88B, 293ms]
+  ✓  Product 1 is added to the customer's cart
+
+→ проверка временного резервирования товара, помещенного в корзину
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=28e255de-1f3d-46b6-891f-e7a1687c559a [200 OK, 232B, 109ms]
+  ✓  Check product 1 is reserved temporary for the cart
+
+→ начать оформление первого заказа
+  POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 267B, 249ms]
+  ✓  Checkout 1 is started
+
+→ проверка состояния первого заказа
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/orderservice/public/order?customer_id=89f9e0dd-930f-4cad-9ee0-638f72651fa9 [200 OK, 331B, 114ms]
+  ✓  Check order 1 state is 'CHARGE_PENDING' after the checkout process is started
+
+→ проверка резервирования первого товара после начала оформления первого заказа
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=28e255de-1f3d-46b6-891f-e7a1687c559a [200 OK, 232B, 107ms]
+  ✓  Check product 1 is reserved for order 1
+
+→ подтвердить успешную оплату
+  POST http://arch.homework/api/checkoutservice/external/payment/5007d328-4e4f-4d70-81a5-7ee83265f7b3/confirmation [204 No Content, 88B, 171ms]
+  ✓  Confirm payment 1 is succeeded
+
+→ проверка состояния первого заказа после успешной оплаты
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/orderservice/public/order/f57b4610-2633-4064-beee-1c99129c43ba [200 OK, 322B, 108ms]
+  ✓  Check order 1 state is 'CHARGED' after payment success
+
+→ проверка резервирования первого товара после оплаты первого заказа
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=28e255de-1f3d-46b6-891f-e7a1687c559a [200 OK, 232B, 106ms]
+  ✓  Check product 1 is still reserved for the order 1 after payment succeeded
+
+→ добавление в корзину второго продукта
+  POST http://arch.homework/api/cartservice/public/line-item [204 No Content, 88B, 130ms]
+  ✓  Product 2 is added to the customer's cart
+
+→ проверка временного резервирования второго товара, помещенного в корзину
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=337e16fc-7b0e-4dfa-b684-5f0a6c0829ae [200 OK, 232B, 107ms]
+  ✓  Check product 2 is reserved temporary for the cart
+
+→ начать оформление второго заказа
+  POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 267B, 170ms]
+  ✓  Checkout 2 is started
+
+→ проверка состояния второго заказа
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/orderservice/public/order?customer_id=89f9e0dd-930f-4cad-9ee0-638f72651fa9 [200 OK, 514B, 107ms]
+  ✓  Check order 2 state is 'CHARGE_PENDING' after the checkout process is started
+
+→ проверка резервирования второго товара после начала оформления второго заказа
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=337e16fc-7b0e-4dfa-b684-5f0a6c0829ae [200 OK, 232B, 104ms]
+  ✓  Check product 2 is reserved for order 2
+
+→ оплата второго заказа не прошла
+  POST http://arch.homework/api/checkoutservice/external/payment/3d50fcd8-7f29-4f42-bd39-3528e9657ef7/confirmation [204 No Content, 88B, 225ms]
+  ✓  Payment 2 is failed
+
+→ проверка состояния второго заказа после не прошедшей оплаты
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/orderservice/public/order/e97806d8-af09-4fa3-be0b-099fb1300125 [200 OK, 321B, 102ms]
+  ✓  Check order 2 state is 'FAILED' after payment failure
+
+→ проверка резервирования второго товара после не прошедшей оплаты второго заказа
+  ┌
+  │ 'http://arch.homework/api'
+  └
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=337e16fc-7b0e-4dfa-b684-5f0a6c0829ae [200 OK, 232B, 104ms]
+  ✓  Check product 2 is not reserved for order anymore but reserved for cart after payment failure
+
+┌─────────────────────────┬────────────────────┬────────────────────┐
+│                         │           executed │             failed │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│              iterations │                  1 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│                requests │                 16 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│            test-scripts │                 32 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│      prerequest-scripts │                 32 │                  0 │
+├─────────────────────────┼────────────────────┼────────────────────┤
+│              assertions │                 16 │                  0 │
+├─────────────────────────┴────────────────────┴────────────────────┤
+│ total run duration: 3s                                            │
+├───────────────────────────────────────────────────────────────────┤
+│ total data received: 1.73kB (approx)                              │
+├───────────────────────────────────────────────────────────────────┤
+│ average response time: 144ms [min: 102ms, max: 293ms, s.d.: 58ms] │
+└───────────────────────────────────────────────────────────────────┘

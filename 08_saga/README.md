@@ -62,5 +62,5 @@ kubectl apply -f . -n=otus
 
 ## [Postman коллекция](postman)
 ```
-newman run RESTful.postman_collection.json > newman_output.txt
+newman run SAGA.postman_collection.json > newman_output.txt
 ```
