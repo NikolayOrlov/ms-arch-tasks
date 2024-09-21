@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  version: 3.0.0
+  title: Order service
+  description: Выполнение заказа
+
+servers:
+  - url: '{schema}://arch.homework/api/orderservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: public
+    description: API, доступный пользователям
+  - name: private
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /public/order:
+    get:
+      tags:
+        - order
+        - public
+      summary: Получение пользователем информации о своих заказах.
+      description: Получение пользователем информации о своих заказах.
+      operationId: getCustomerOrders
+      parameters:
+        - name: customer_id
+          description: Идентификатор покупателя
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+  /private/order:
+    post:
+      tags:
+        - order
+        - private
+      summary: Создание заказа.
+      description: Создание заказа в статусе CHARGE_PENDING.
+      operationId: createOrder
+      parameters:
+        - name: "Idempotency-Key"
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDto'
+      responses:
+        '201':
+          description: Создан заказ в статусе CHARGE_PENDING.
+          content:
+            application/text:
+              schema:
+                type: string
+                description: Идентификатор заказа
+
+  /public/order/{id}:
+    get:
+      tags:
+        - order
+        - public
+      summary: Получение информации о заказе.
+      description: Получение информации о заказе. Кроме покупателя информация о заказе доступна работникам склада.
+      operationId: getOrder
+      parameters:
+        - name: id
+          description: Идентификатор заказа
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+  /private/order/{id}/status:
+    put:
+      tags:
+        - order
+        - private
+      summary: Установка статуса заказа в процессе обработки.
+      description: Установка статуса заказа в процессе обработки.
+      operationId: updateOrderStatus
+      parameters:
+        - name: id
+          description: Идентификатор заказа
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderStatusDto'
+      responses:
+        '204':
+          description: Статус заказа установлен.
+
+components:
+  schemas:
+    OrderDto:
+      description: Заказ
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор заказа
+        customerId:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя
+        status:
+          $ref: '#/components/schemas/OrderStatusDto'
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemDto'
+        price:
+          type: number
+          description: Цена заказа
+        date:
+          type: string
+          format: date-time
+          description: Оплачен
+        deliveryAddress:
+          $ref: '#/components/schemas/DeliveryAddressDto'
+    OrderStatusDto:
+      description: Статус заказа |
+        `CHARGE_PENDING` - Заказ ожидает оплату;
+        `CHARGED` - Получено подтвеждение оплаты заказа;
+        `FAILED` - Платеж не подтверждён;
+        `READY_FOR_DELIVERY` - Заказ готов к отправке;
+        `SENT` - Заказ передан в доставку транспортной компанией;
+        `DELIVERED` - Заказ доставлен покупателю.
+      type: string
+      enum:
+        - CHARGE_PENDING
+        - CHARGED
+        - FAILED
+        - READY_FOR_DELIVERY
+        - SENT
+        - DELIVERED
+    LineItemDto:
+      description: Товарная позиция заказа
+      type: object
+      required:
+        - productId
+      properties:
+        productId:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество товара
+          default: 1
+        price:
+          type: number
+          description: Цена товарной позиции, рублей
+    DeliveryAddressDto:
+      description: Адрес доставки
+      type: object
+      properties:
+        asText:
+          type: string
+          description: Текстовое представление адреса

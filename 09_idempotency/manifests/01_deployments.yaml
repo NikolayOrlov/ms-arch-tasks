@@ -1,0 +1,153 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkoutservice
+  labels:
+    app: checkoutservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: checkoutservice
+  template:
+    metadata:
+      labels:
+        app: checkoutservice
+    spec:
+      containers:
+        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.0.0
+          name: checkoutservice-container
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/checkoutservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/checkoutservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderservice
+  labels:
+    app: orderservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderservice
+  template:
+    metadata:
+      labels:
+        app: orderservice
+    spec:
+      containers:
+        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.0.0
+          name: orderservice-container
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/orderservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/orderservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice
+  labels:
+    app: cartservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cartservice
+  template:
+    metadata:
+      labels:
+        app: cartservice
+    spec:
+      containers:
+        - image: gmnvnorlov/ms-arch-tasks-cartservice:3.0.0
+          name: cartservice-container
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/cartservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/cartservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stockservice
+  labels:
+    app: stockservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stockservice
+  template:
+    metadata:
+      labels:
+        app: stockservice
+    spec:
+      containers:
+        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.0.0
+          name: stockservice-container
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/stockservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/stockservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+
