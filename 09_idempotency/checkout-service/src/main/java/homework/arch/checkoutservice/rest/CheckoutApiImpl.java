@@ -8,6 +8,8 @@ import homework.arch.checkoutservice.api.generated.CheckoutApi;
 import homework.arch.checkoutservice.mapper.Mapper;
 import homework.arch.checkoutservice.persistence.CheckoutEntity;
 import homework.arch.checkoutservice.saga.CheckoutSagaOrchestrator;
+import homework.arch.idempotency.Idempotent;
+import homework.arch.monitoring.ExecutionMonitoring;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,8 @@ public class CheckoutApiImpl implements CheckoutApi {
     private String paymentSystemUrl;
 
     @Override
+    @ExecutionMonitoring
+    @Idempotent
     public ResponseEntity<Checkout200Response> checkout(UUID idempotencyKey, CheckoutDto checkoutDto) {
         var payment = checkoutSagaOrchestrator.startCheckoutProcess(checkoutDto);
         return ResponseEntity.ok(new Checkout200Response()
@@ -36,6 +40,7 @@ public class CheckoutApiImpl implements CheckoutApi {
     }
 
     @Override
+    @ExecutionMonitoring
     public ResponseEntity<Void> confirmPayment(String paymentId, PaymentConfirmationDto paymentConfirmationDto) {
         checkoutSagaOrchestrator.pivotalConfirmPayment(paymentId, paymentConfirmationDto);
         return ResponseEntity.noContent().build();

@@ -6,13 +6,13 @@ import homework.arch.stockservice.api.dto.generated.GetReservations200Response;
 import homework.arch.stockservice.api.dto.generated.ReserveDto;
 import homework.arch.stockservice.api.dto.generated.ReservedProductDto;
 import homework.arch.stockservice.api.generated.StockApi;
-import homework.arch.stockservice.exception.NotFoundException;
 import homework.arch.stockservice.mapper.Mapper;
 import homework.arch.stockservice.persistence.ReserveEntity;
 import homework.arch.stockservice.persistence.ReserveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +24,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -59,11 +58,12 @@ public class StockApiImpl implements StockApi {
                                     .setReservationTimestamp(null)).toList());
             log.debug("Reserved for order: {}", reserveDto);
         }
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @Transactional
+    @ExecutionMonitoring
     public ResponseEntity<Void> cancelProductReserveForOrder(ReserveDto reserveDto) {
         var reserveEntities = reserveRepository.findAllByOrderId(reserveDto.getOrderId()).stream().map(r -> r.setOrderId(null).setReservationTimestamp(LocalDateTime.now())).toList();
         if (!reserveEntities.isEmpty()) {
@@ -76,6 +76,7 @@ public class StockApiImpl implements StockApi {
     }
 
     @Override
+    @ExecutionMonitoring
     public ResponseEntity<GetReservations200Response> getReservations(UUID productId) {
         var reservations = productId == null ? reserveRepository.findAll() : reserveRepository.findAllByProductId(productId);
         var inCarts = StreamSupport.stream(reservations.spliterator(), false)

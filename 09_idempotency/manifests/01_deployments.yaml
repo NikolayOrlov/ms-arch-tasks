@@ -15,7 +15,7 @@ spec:
         app: checkoutservice
     spec:
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.0.0
+        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.0.1
           name: checkoutservice-container
           ports:
             - name: http

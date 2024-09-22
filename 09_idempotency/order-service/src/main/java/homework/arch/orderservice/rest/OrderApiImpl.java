@@ -10,6 +10,7 @@ import homework.arch.orderservice.persistence.OrderEntity;
 import homework.arch.orderservice.persistence.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +31,7 @@ public class OrderApiImpl implements OrderApi {
     public ResponseEntity<String> createOrder(UUID idempotencyKey, OrderDto orderDto) {
         var order = orderRepository.save(mapper.toDomain(orderDto).setStatus(OrderEntity.OrderStatus.CHARGE_PENDING));
         log.debug("Created order {}", order.getId());
-        return ResponseEntity.ok(order.getId().toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body(order.getId().toString());
     }
 
     @Override

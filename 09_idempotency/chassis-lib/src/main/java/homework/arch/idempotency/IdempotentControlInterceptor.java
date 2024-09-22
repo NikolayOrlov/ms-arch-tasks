@@ -28,6 +28,7 @@ public class IdempotentControlInterceptor implements HandlerInterceptor {
     // true - продолжить выполнение запроса, false - прервать выполнение
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // TODO: implement support of concurrent calls to control requested but not processed yet resources. To return 409 status.
         if (handler instanceof HandlerMethod handlerMethod && handlerMethod.getMethodAnnotation(Idempotent.class) != null) {
             var idempotencyKey = request.getHeader(IDEMPOTENCY_KEY_HEADER);
             if (cachedResponses.containsKey(idempotencyKey)) {

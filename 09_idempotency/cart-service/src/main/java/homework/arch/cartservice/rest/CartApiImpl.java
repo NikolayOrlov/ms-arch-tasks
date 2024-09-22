@@ -14,6 +14,7 @@ import homework.arch.cartservice.persistence.CartEntity;
 import homework.arch.cartservice.persistence.CartRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +47,7 @@ public class CartApiImpl implements CartApi {
         cart =  cartRepository.save(cart);
         reserveProductsForCart(cart.getId(), lineItemDto);
         log.debug("Added line item to cart {} for product {}", cart.getId(), lineItemDto.getProductId());
-        return ResponseEntity.ok(cart.getId().toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body(cart.getId().toString());
     }
 
     @Override
