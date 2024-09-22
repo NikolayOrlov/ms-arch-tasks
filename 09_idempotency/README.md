@@ -10,6 +10,7 @@
 - POST /api/checkoutservice/public/checkout (checkout)
 - POST /api/orderservice/private/order (createOrder)
 - POST /api/stockservice/private/reserve (reserveProducts)
+  
 Обработка аннотаций @Idempotent реализована в библиотеке microservice-chassis (в папке chassis-lib).
 
 ## Сборка и развертывание
