@@ -3,105 +3,105 @@ newman
 SAGA by idempotent API
 
 → добавление в корзину первого продукта
-  POST http://arch.homework/api/cartservice/public/line-item [201 Created, 187B, 245ms]
+  POST http://arch.homework/api/cartservice/public/line-item [201 Created, 187B, 281ms]
   ✓  Product 1 is added to the customer's cart
 
 → retry добавление в корзину первого продукта
-  POST http://arch.homework/api/cartservice/public/line-item [201 Created, 141B, 81ms]
-  ✓  Retry for product 1 is added to the customer's cart
+  POST http://arch.homework/api/cartservice/public/line-item [201 Created, 141B, 83ms]
+  ✓  Retry for product 1 returns the same as the 1st call
 
 → проверка временного резервирования товара, помещенного в корзину
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/stockservice/public/reserve?product_id=8819015c-4f42-4549-91de-7441662c1255 [200 OK, 224B, 82ms]
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=40199777-dbf1-40e1-a253-f38662eae4f4 [200 OK, 224B, 82ms]
   ✓  Check product 1 is reserved temporary for the cart
 
 → начать оформление первого заказа
-  POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 260B, 170ms]
+  POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 260B, 180ms]
   ✓  Checkout 1 is started
 
 → retry начать оформление первого заказа
   POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 228B, 77ms]
-  ✓  Retry for checkout 1 is started
+  ✓  Retry for checkout 1 returns the same as the 1st call
 
 → проверка состояния первого заказа
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/orderservice/public/order?customer_id=8d4bea5a-c741-4704-97b5-9eaf2678093a [200 OK, 324B, 82ms]
+  GET http://arch.homework/api/orderservice/public/order?customer_id=cd577170-9631-456b-b0fd-28f5033a4785 [200 OK, 324B, 84ms]
   ✓  Check order 1 state is 'CHARGE_PENDING' after the checkout process is started
 
 → проверка резервирования первого товара после начала оформления первого заказа
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/stockservice/public/reserve?product_id=8819015c-4f42-4549-91de-7441662c1255 [200 OK, 224B, 85ms]
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=40199777-dbf1-40e1-a253-f38662eae4f4 [200 OK, 224B, 79ms]
   ✓  Check product 1 is reserved for order 1
 
 → подтвердить успешную оплату
-  POST http://arch.homework/api/checkoutservice/external/payment/8ae80526-030e-4491-ab74-416fce1f90a2/confirmation [204 No Content, 88B, 163ms]
+  POST http://arch.homework/api/checkoutservice/external/payment/3e9bc3a4-2cec-4821-b978-57c333a90506/confirmation [204 No Content, 88B, 249ms]
   ✓  Confirm payment 1 is succeeded
 
 → проверка состояния первого заказа после успешной оплаты
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/orderservice/public/order/b6aab3ec-4b1b-4669-81d6-6b4e73d92f39 [200 OK, 315B, 81ms]
+  GET http://arch.homework/api/orderservice/public/order/89065dda-3be4-49ff-a35f-53288c43d676 [200 OK, 315B, 81ms]
   ✓  Check order 1 state is 'CHARGED' after payment success
 
 → проверка резервирования первого товара после оплаты первого заказа
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/stockservice/public/reserve?product_id=8819015c-4f42-4549-91de-7441662c1255 [200 OK, 224B, 80ms]
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=40199777-dbf1-40e1-a253-f38662eae4f4 [200 OK, 224B, 82ms]
   ✓  Check product 1 is still reserved for the order 1 after payment succeeded
 
 → добавление в корзину второго продукта
-  POST http://arch.homework/api/cartservice/public/line-item [201 Created, 187B, 106ms]
+  POST http://arch.homework/api/cartservice/public/line-item [201 Created, 187B, 105ms]
   ✓  Product 2 is added to the customer's cart
 
 → проверка временного резервирования второго товара, помещенного в корзину
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/stockservice/public/reserve?product_id=5f4110b1-3793-4268-b0e5-9159341cf8b6 [200 OK, 224B, 82ms]
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=d07440a7-16d9-4125-85b1-7c90cde44bfb [200 OK, 224B, 83ms]
   ✓  Check product 2 is reserved temporary for the cart
 
 → начать оформление второго заказа
-  POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 260B, 156ms]
+  POST http://arch.homework/api/checkoutservice/public/checkout [200 OK, 260B, 222ms]
   ✓  Checkout 2 is started
 
 → проверка состояния второго заказа
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/orderservice/public/order?customer_id=8d4bea5a-c741-4704-97b5-9eaf2678093a [200 OK, 507B, 81ms]
+  GET http://arch.homework/api/orderservice/public/order?customer_id=cd577170-9631-456b-b0fd-28f5033a4785 [200 OK, 507B, 82ms]
   ✓  Check order 2 state is 'CHARGE_PENDING' after the checkout process is started
 
 → проверка резервирования второго товара после начала оформления второго заказа
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/stockservice/public/reserve?product_id=5f4110b1-3793-4268-b0e5-9159341cf8b6 [200 OK, 224B, 80ms]
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=d07440a7-16d9-4125-85b1-7c90cde44bfb [200 OK, 224B, 86ms]
   ✓  Check product 2 is reserved for order 2
 
 → оплата второго заказа не прошла
-  POST http://arch.homework/api/checkoutservice/external/payment/00f63811-495f-4b54-9c8e-c5e478a57499/confirmation [204 No Content, 88B, 130ms]
+  POST http://arch.homework/api/checkoutservice/external/payment/19881cec-192a-4e71-a0e4-548b1af37400/confirmation [204 No Content, 88B, 128ms]
   ✓  Payment 2 is failed
 
 → проверка состояния второго заказа после не прошедшей оплаты
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/orderservice/public/order/ad00b69e-9b9c-48bb-add4-3a5004621329 [200 OK, 314B, 78ms]
+  GET http://arch.homework/api/orderservice/public/order/1a278211-c9e8-4c5c-aaed-7cbc3ecb15b7 [200 OK, 314B, 78ms]
   ✓  Check order 2 state is 'FAILED' after payment failure
 
 → проверка резервирования второго товара после не прошедшей оплаты второго заказа
   ┌
   │ 'http://arch.homework/api'
   └
-  GET http://arch.homework/api/stockservice/public/reserve?product_id=5f4110b1-3793-4268-b0e5-9159341cf8b6 [200 OK, 224B, 80ms]
+  GET http://arch.homework/api/stockservice/public/reserve?product_id=d07440a7-16d9-4125-85b1-7c90cde44bfb [200 OK, 224B, 86ms]
   ✓  Check product 2 is not reserved for order anymore but reserved for cart after payment failure
 
 ┌─────────────────────────┬────────────────────┬───────────────────┐
@@ -117,9 +117,9 @@ SAGA by idempotent API
 ├─────────────────────────┼────────────────────┼───────────────────┤
 │              assertions │                 18 │                 0 │
 ├─────────────────────────┴────────────────────┴───────────────────┤
-│ total run duration: 2.8s                                         │
+│ total run duration: 3.1s                                         │
 ├──────────────────────────────────────────────────────────────────┤
 │ total data received: 1.97kB (approx)                             │
 ├──────────────────────────────────────────────────────────────────┤
-│ average response time: 107ms [min: 77ms, max: 245ms, s.d.: 45ms] │
+│ average response time: 119ms [min: 77ms, max: 281ms, s.d.: 64ms] │
 └──────────────────────────────────────────────────────────────────┘

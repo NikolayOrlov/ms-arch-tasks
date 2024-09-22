@@ -73,7 +73,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Retry for product 1 is added to the customer's cart\", function () {",
+							"pm.test(\"Retry for product 1 returns the same as the 1st call\", function () {",
 							"    pm.response.to.have.status(201);",
 							"});"
 						],
@@ -249,7 +249,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Retry for checkout 1 is started\", function () {",
+							"pm.test(\"Retry for checkout 1 returns the same as the 1st call\", function () {",
 							"    pm.response.to.have.status(200);",
 							"    var responseBody = pm.response.json();",
 							"    var paymentId = responseBody.payment.id;",
