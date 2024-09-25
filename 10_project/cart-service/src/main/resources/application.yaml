@@ -1,0 +1,29 @@
+spring:
+  application.name: cartservice
+server:
+  servlet:
+    context-path: /api/cartservice
+management:
+  endpoint.health:
+    cache.time-to-live: 20s
+    show-details: always
+    group:
+      readiness:
+        include: ping
+      liveness:
+        include: diskSpace
+  endpoints.web.exposure.include: info, health, prometheus
+  metrics:
+    enable:
+      jvm: true
+      system: true
+      tomcat: true
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
+stock.url: stockservice:8080/api/stockservice
+logging.level.homework.arch: DEBUG
+spring.cloud.discovery.client.composite-indicator.enabled: false
+spring.jackson.default-property-inclusion: NON_NULL

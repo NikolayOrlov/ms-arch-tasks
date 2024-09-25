@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  version: 3.0.0
+  title: Profile service
+  description: Доступ к персональным данным пользователей
+
+servers:
+  - url: '{schema}://arch.homework/api/profileservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: public
+    description: API, доступный пользователям
+  - name: private
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /public/profile:
+    get:
+      tags:
+        - profile
+        - public
+      summary: Получение пользователем персональной информации
+      description: Получение пользователем персональной информации
+      operationId: getProfile
+      parameters:
+        - name: "X-UserId"
+          description: Идентификатор пользователя, получаемый из authService при вызове auth
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfileDto'
+    put:
+      tags:
+        - profile
+        - public
+      summary: Редактирование пользователем персональной информации
+      description: Редактирование пользователем персональной информации
+      operationId: updateProfile
+      parameters:
+        - name: "X-UserId"
+          description: Идентификатор пользователя, получаемый из authService при вызове auth
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerProfileDto'
+      responses:
+        '204':
+          description: Персональная информация пользователя отредактирована
+  /private/customer:
+    post:
+      tags:
+        - customer
+        - private
+      summary: Сохранение пользовательской информации, полученной при регистрации
+      description: Сохранение пользовательской информации, полученной при регистрации
+      operationId: submitCustomerData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerDto'
+      responses:
+        '200':
+          description: Информация сохранена
+components:
+  schemas:
+    CustomerProfileDto:
+      description: Персональная информация пользователя
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+    CustomerDto:
+      description: Пользовательская информация, полученная при регистрации
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string

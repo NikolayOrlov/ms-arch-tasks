@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  version: 3.0.0
+  title: Auth service
+  description: Сервис регистрации, аутентификации и авторизации
+
+servers:
+  - url: '{schema}://arch.homework'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+paths:
+  /register:
+    post:
+      summary: Регистрация пользователя
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationDto'
+      responses:
+        '200':
+          description: Идентификатор зарегистрированного пользователя
+          content:
+            application/text:
+              schema:
+                type: string
+  /login:
+    post:
+      summary: Авторизация по логину и паролю пользователя
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: Login status
+          content:
+            application/text:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+  /logout:
+    post:
+      summary: logout
+      operationId: logout
+      responses:
+        '200':
+          description: ''
+  /auth:
+    get:
+      summary: auth
+      operationId: auth
+      responses:
+        '200':
+          description: Success auth
+          content:
+            application/text:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+components:
+  schemas:
+    RegistrationDto:
+      description: Данные формы регистрации
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+    LoginDto:
+      description: Login credentials
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string

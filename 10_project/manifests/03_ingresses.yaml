@@ -1,0 +1,184 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: authservice
+  labels:
+    app: authservice
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /login
+            pathType: Exact
+            backend:
+              service:
+                name: authservice
+                port:
+                  number: 8080
+          - path: /register
+            pathType: Exact
+            backend:
+              service:
+                name: authservice
+                port:
+                  number: 8080
+          - path: /logout
+            pathType: Exact
+            backend:
+              service:
+                name: authservice
+                port:
+                  number: 8080
+          - path: /auth
+            pathType: Exact
+            backend:
+              service:
+                name: authservice
+                port:
+                  number: 8080
+          # a page where an unauthorized request is redirected to:
+          - path: /sign-in-page
+            pathType: Exact
+            backend:
+              service:
+                name: authservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: profileservice
+  labels:
+    app: profileservice
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://authservice.otus.svc.cluster.local:8080/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://$host/sign-in-page"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-UserId,X-User"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/profileservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: profileservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: checkoutservice
+  labels:
+    app: checkoutservice
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://authservice.otus.svc.cluster.local:8080/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://$host/sign-in-page"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-UserId,X-User"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/checkoutservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: checkoutservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: checkoutservice-ext
+  labels:
+    app: checkoutservice
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/checkoutservice/external
+            pathType: Prefix
+            backend:
+              service:
+                name: checkoutservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: orderservice
+  labels:
+    app: orderservice
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://authservice.otus.svc.cluster.local:8080/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://$host/sign-in-page"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-UserId,X-User"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/orderservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: orderservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cartservice
+  labels:
+    app: cartservice
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://authservice.otus.svc.cluster.local:8080/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://$host/sign-in-page"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-UserId,X-User"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/cartservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: cartservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stockservice
+  labels:
+    app: stockservice
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/stockservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: stockservice
+                port:
+                  number: 8080
