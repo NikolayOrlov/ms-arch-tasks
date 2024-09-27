@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>homework.arch</groupId>
-	<artifactId>orderservice</artifactId>
-	<version>3.0.1</version>
-	<name>orderservice</name>
+	<artifactId>notificationservice</artifactId>
+	<version>2.0.0</version>
+	<name>notificationservice</name>
 	<description>Homework project for OTUS</description>
 	<url/>
 	<licenses>
@@ -183,7 +183,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/../apis/orderService.yaml</inputSpec>
+							<inputSpec>${project.basedir}/../apis/notificationService.yaml</inputSpec>
 							<!-- https://openapi-generator.tech/docs/generators/spring -->
 							<generatorName>spring</generatorName>
 							<configOptions>
@@ -197,25 +197,6 @@
 								<useTags>true</useTags>
 							</configOptions>
 							<additionalProperties>removeEnumValuePrefix=false</additionalProperties>
-						</configuration>
-					</execution>
-					<execution>
-						<id>notification-client</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>${project.basedir}/../apis/notificationService.yaml</inputSpec>
-							<!-- https://openapi-generator.tech/docs/generators/spring -->
-							<generatorName>spring</generatorName>
-							<configOptions>
-								<sourceFolder>src/gen/java/main</sourceFolder>
-								<dateLibrary>java8-localdatetime</dateLibrary>
-								<library>spring-cloud</library>
-								<apiPackage>${base.package.name}.client.notification.generated</apiPackage>
-								<modelPackage>${base.package.name}.client.notification.dto.generated</modelPackage>
-								<useTags>true</useTags>
-							</configOptions>
 						</configuration>
 					</execution>
 				</executions>

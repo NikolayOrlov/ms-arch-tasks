@@ -1,8 +1,8 @@
 spring:
-  application.name: orderservice
+  application.name: notificationservice
 server:
   servlet:
-    context-path: /api/orderservice
+    context-path: /api/notificationservice
 management:
   endpoint.health:
     cache.time-to-live: 20s
@@ -23,7 +23,7 @@ management:
     distribution:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
-notification.url: notificationservice:8080/api/notificationservice
 logging.level.homework.arch: DEBUG
+
 spring.cloud.discovery.client.composite-indicator.enabled: false
 spring.jackson.default-property-inclusion: NON_NULL

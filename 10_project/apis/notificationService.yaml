@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  version: 2.0.0
+  title: Notification service
+  description: Уведомления покупателей
+
+servers:
+  - url: '{schema}://arch.homework/api/notificationservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+
+paths:
+  /private/notification:
+    post:
+      tags:
+        - notification
+        - private
+      summary: Отправить сообщение.
+      description: Отправить сообщение покупателю о процессе выполнения заказа
+      operationId: notifyCustomer
+      parameters:
+        - name: "Idempotency-Key"
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationDto'
+      responses:
+        '201':
+          description: Сообщение запланировано к отправке.
+  /public/notification:
+    get:
+      tags:
+        - notification
+        - public
+      summary: Список сообщений покупателя.
+      description: Получить сообщения, отправленные покупателю
+      operationId: getNotifications
+      parameters:
+        - name: customer_id
+          description: Идентификатор покупателя
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Сообщения, отправленные покупателю
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationDto'
+components:
+  schemas:
+    NotificationDto:
+      description: Уведомление покупателю.
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+          description: Идентификатор покупателя.
+        orderId:
+          type: string
+          format: uuid
+          description: Идентификатор заказа.
+        message:
+          type: string
+          description: Сообщение.
+        notificationWay:
+          type: string
+          enum:
+            - EMAIL
+          description: Способ уведомления.
