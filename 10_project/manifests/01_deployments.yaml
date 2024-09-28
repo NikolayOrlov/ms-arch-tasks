@@ -117,7 +117,7 @@ spec:
         app: orderservice
     spec:
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.0.1
+        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.1.0
           name: orderservice-container
           ports:
             - name: http
@@ -214,4 +214,41 @@ spec:
             timeoutSeconds: 5
             initialDelaySeconds: 120
             periodSeconds: 10
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notificationservice
+  labels:
+    app: notificationservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notificationservice
+  template:
+    metadata:
+      labels:
+        app: notificationservice
+    spec:
+      containers:
+        - image: gmnvnorlov/ms-arch-tasks-notificationservice:2.0.2
+          name: notificationservice-container
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/notificationservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/notificationservice/actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            initialDelaySeconds: 120
+            periodSeconds: 10

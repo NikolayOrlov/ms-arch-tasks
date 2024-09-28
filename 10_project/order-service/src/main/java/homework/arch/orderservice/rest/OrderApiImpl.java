@@ -6,9 +6,11 @@ import homework.arch.idempotency.Idempotent;
 import homework.arch.monitoring.ExecutionMonitoring;
 import homework.arch.orderservice.api.dto.generated.OrderDto;
 import homework.arch.orderservice.api.generated.OrderApi;
+import homework.arch.orderservice.client.notification.dto.generated.NotificationDto;
 import homework.arch.orderservice.mapper.Mapper;
 import homework.arch.orderservice.persistence.OrderEntity;
 import homework.arch.orderservice.persistence.OrderRepository;
+import homework.arch.orderservice.transactionaloutbox.MessageRelay;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ public class OrderApiImpl implements OrderApi {
     private final OrderRepository orderRepository;
     private final Mapper mapper;
     private final HttpServletRequest httpServletRequest;
+    private final MessageRelay messageRelay;
 
     @Override
     @ExecutionMonitoring
@@ -47,6 +50,9 @@ public class OrderApiImpl implements OrderApi {
         var order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException(orderId.toString()));
         order.setStatus(newStatus);
         orderRepository.save(order);
+        if (newStatus == OrderEntity.OrderStatus.CHARGED) {
+            messageRelay.scheduleSendOut(new NotificationDto().customerId(order.getCustomerId()).orderId(orderId).message("Order %s charged".formatted(orderId)));
+        }
         log.debug("Order {} set to status '{}'", orderId, newStatusAsString);
         return ResponseEntity.noContent().build();
     }

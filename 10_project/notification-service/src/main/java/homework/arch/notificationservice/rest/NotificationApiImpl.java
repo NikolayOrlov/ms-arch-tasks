@@ -33,6 +33,7 @@ public class NotificationApiImpl implements NotificationApi {
     @ExecutionMonitoring
     public ResponseEntity<Void> notifyCustomer(UUID idempotencyKey, NotificationDto notificationDto) {
         notificationRepository.save(mapper.toDomain(notificationDto));
+        log.info("Got a message '{}' for customer {}", notificationDto.getMessage(), notificationDto.getCustomerId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

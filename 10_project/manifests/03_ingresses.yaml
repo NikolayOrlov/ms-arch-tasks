@@ -182,3 +182,23 @@ spec:
                 name: stockservice
                 port:
                   number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notificationservice
+  labels:
+    app: notificationservice
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/notificationservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: notificationservice
+                port:
+                  number: 8080
