@@ -1,12 +1,17 @@
 package homework.arch.stockservice.rest;
 
+import homework.arch.exception.NotFoundException;
 import homework.arch.idempotency.Idempotent;
 import homework.arch.monitoring.ExecutionMonitoring;
 import homework.arch.stockservice.api.dto.generated.GetReservations200Response;
 import homework.arch.stockservice.api.dto.generated.ReserveDto;
 import homework.arch.stockservice.api.dto.generated.ReservedProductDto;
 import homework.arch.stockservice.api.generated.StockApi;
+import homework.arch.stockservice.exception.NotSufficientOnStockException;
+import homework.arch.stockservice.kafka.AvailableProductProducer;
 import homework.arch.stockservice.mapper.Mapper;
+import homework.arch.stockservice.persistence.ProductEntity;
+import homework.arch.stockservice.persistence.ProductRepository;
 import homework.arch.stockservice.persistence.ReserveEntity;
 import homework.arch.stockservice.persistence.ReserveRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -31,10 +38,17 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 @Slf4j
 public class StockApiImpl implements StockApi {
+    private final int EVERY_MINUTE_IN_MS = 1000 * 60;
     private final ReserveRepository reserveRepository;
     private final Mapper mapper;
+    private final AvailableProductProducer productProducer;
+    private final ProductRepository productRepository;
     @Value("${cartReserveMinutes:30}")
     private int cartReserveMinutes;
+    @Value("${toLoadDifferentProducts:100}")
+    private int toLoadDifferentProducts;
+    @Value("${toLoadProductQuantityOnStock:10000}")
+    private int toLoadProductQuantityOnStock;
 
     @Override
     @Transactional
@@ -45,13 +59,9 @@ public class StockApiImpl implements StockApi {
             throw new IllegalArgumentException();
         }
         if (reserveDto.getOrderId() == null) {
-            // TODO: to check remaining stock
-            reserveRepository.saveAll(reserveDto.getProducts().stream()
-                                                                .map(p -> new ReserveEntity()
-                                                                                .setCartId(reserveDto.getCartId())
-                                                                                .setProductId(p.getProductId())
-                                                                                .setQuantity(p.getQuantity())).toList());
+            reserveRepository.saveAll(reserveDto.getProducts().stream().map(product -> reserveAvailableProduct(reserveDto, product)).toList());
             log.debug("Reserved for cart: {}", reserveDto);
+            sendOutAvailableProducts(reserveDto.getProducts().stream().map(ReservedProductDto::getProductId).collect(Collectors.toSet()));
         } else {
             reserveRepository.saveAll(reserveRepository.findAllByCartIdAndOrderIdIsNullAndReservationTimestampGreaterThan(reserveDto.getCartId(), LocalDateTime.now().minusMinutes(cartReserveMinutes)).stream()
                             .peek(p -> p.setOrderId(reserveDto.getOrderId())
@@ -78,21 +88,71 @@ public class StockApiImpl implements StockApi {
     @Override
     @ExecutionMonitoring
     public ResponseEntity<GetReservations200Response> getReservations(UUID productId) {
-        var reservations = productId == null ? reserveRepository.findAll() : reserveRepository.findAllByProductId(productId);
-        var inCarts = StreamSupport.stream(reservations.spliterator(), false)
-                        .filter(re -> isNull(re.getOrderId())
-                                && re.getReservationTimestamp().isAfter(LocalDateTime.now().minusMinutes(cartReserveMinutes))).toList();
-        var ordered = StreamSupport.stream(reservations.spliterator(), false).filter(re -> nonNull(re.getOrderId())).toList();
-        var inCartsByProductId = count(inCarts);
-        var orderedByProductId = count(ordered);
+        var counts = getReservedCounts(productId);
         var result = new GetReservations200Response();
-        result.setInCarts(inCartsByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
-        result.setOrdered(orderedByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
+        result.setInCarts(counts.inCartsByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
+        result.setOrdered(counts.orderedByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
         return ResponseEntity.ok(result);
     }
 
-    private Map<UUID, Integer> count(List<ReserveEntity> list) {
+    private ReservedProductCounts getReservedCounts(UUID productId) {
+        var reservations = productId == null ? reserveRepository.findAll() : reserveRepository.findAllByProductId(productId);
+        var inCarts = StreamSupport.stream(reservations.spliterator(), false)
+                .filter(re -> isNull(re.getOrderId())
+                        && re.getReservationTimestamp().isAfter(LocalDateTime.now().minusMinutes(cartReserveMinutes))).toList();
+        var ordered = StreamSupport.stream(reservations.spliterator(), false).filter(re -> nonNull(re.getOrderId())).toList();
+        return new ReservedProductCounts(countReservations(inCarts), countReservations(ordered));
+    }
+
+    private Map<UUID, Integer> countReservations(List<ReserveEntity> list) {
         var inCartsByProductsId = list.stream().collect(Collectors.groupingBy(ReserveEntity::getProductId, Collectors.mapping(ReserveEntity::getQuantity, Collectors.reducing(Integer::sum))));
         return inCartsByProductsId.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().orElse(0)));
+    }
+
+    // TODO: make it concurrent safe
+    private ReserveEntity reserveAvailableProduct(ReserveDto reserveDto, ReservedProductDto toReserveProductDto) {
+        var productOnStock = productRepository.findById(toReserveProductDto.getProductId()).orElseThrow(() -> new NotFoundException(toReserveProductDto.getProductId().toString()));
+        var reservedCounts = getReservedCounts(toReserveProductDto.getProductId());
+        if (productOnStock.getOnStock() - reservedCounts.getReserved(toReserveProductDto.getProductId())
+                    > toReserveProductDto.getQuantity()) {
+            return new ReserveEntity()
+                    .setCartId(reserveDto.getCartId())
+                    .setProductId(toReserveProductDto.getProductId())
+                    .setQuantity(toReserveProductDto.getQuantity());
+        } else {
+            throw new NotSufficientOnStockException(toReserveProductDto.getProductId().toString());
+        }
+    }
+
+    @Override
+    public ResponseEntity<Void> loadProducts() {
+        for (int i = 0; i < toLoadDifferentProducts; i++) {
+            var product = productRepository.save(new ProductEntity().setOnStock(toLoadProductQuantityOnStock));
+            productProducer.sendMessage(mapper.toKafkaDto(product));
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    private void sendOutAvailableProducts(Set<UUID> productIds) {
+        var products = productRepository.findAllById(productIds);
+        for (var product : products) {
+            var reservedCounts = getReservedCounts(product.getId());
+            productProducer.sendMessage(mapper.toKafkaDto(product).setAvailable(product.getOnStock() - reservedCounts.getReserved(product.getId())));
+        }
+    }
+
+    @Scheduled(fixedDelay = EVERY_MINUTE_IN_MS)
+    @Transactional
+    protected void clearOutdatedCartReservations() {
+        var outdatedReservations = reserveRepository.findAllByOrderIdIsNullAndReservationTimestampLessThan(LocalDateTime.now().minusMinutes(cartReserveMinutes));
+        log.debug("to remove " + outdatedReservations.size() + " outdated cart reservations");
+        sendOutAvailableProducts(outdatedReservations.stream().map(ReserveEntity::getProductId).collect(Collectors.toSet()));
+        reserveRepository.deleteAllById(outdatedReservations.stream().map(ReserveEntity::getId).toList());
+    }
+
+    record ReservedProductCounts(Map<UUID, Integer> inCartsByProductId, Map<UUID, Integer> orderedByProductId) {
+        int getReserved(UUID productId) {
+            return inCartsByProductId.getOrDefault(productId, 0) + orderedByProductId.getOrDefault(productId, 0);
+        }
     }
 }

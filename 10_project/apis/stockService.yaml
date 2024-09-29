@@ -13,6 +13,8 @@ servers:
           - https
         default: http
 tags:
+  - name: public
+    description: API, доступный пользователям
   - name: private
     description: API для межкомпонентного взаимодействия
 
@@ -63,6 +65,17 @@ paths:
       responses:
         '204':
           description: Резерв на товар снят.
+  /public/load:
+    post:
+      tags:
+        - stock
+        - public
+      summary: Загрузка товаров на склад.
+      description: Загрузка товаров на склад.
+      operationId: loadProducts
+      responses:
+        '200':
+          description: ''
   /public/reserve:
     get:
       tags:

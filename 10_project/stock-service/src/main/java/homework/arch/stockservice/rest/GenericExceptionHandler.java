@@ -2,6 +2,7 @@ package homework.arch.stockservice.rest;
 
 import homework.arch.exception.NotFoundException;
 import homework.arch.exception.UnauthorizedException;
+import homework.arch.stockservice.exception.NotSufficientOnStockException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,4 +22,10 @@ public class GenericExceptionHandler {
     public ResponseEntity<?> handleNotFoundException(final Exception ex, final WebRequest request) {
         return new ResponseEntity<>("NotFound: %s".formatted(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(NotSufficientOnStockException.class)
+    public ResponseEntity<?> handleNotSufficientOnStockException(final Exception ex, final WebRequest request) {
+        return new ResponseEntity<>("NotSufficientOnStockException: %s".formatted(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }

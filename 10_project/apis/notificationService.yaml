@@ -12,6 +12,11 @@ servers:
           - http
           - https
         default: http
+tags:
+  - name: public
+    description: API, доступный пользователям
+  - name: private
+    description: API для межкомпонентного взаимодействия
 
 paths:
   /private/notification:

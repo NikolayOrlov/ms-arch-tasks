@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Product service
+  description: Управление каталогом товаров
+
+servers:
+  - url: '{schema}://arch.homework/api/productservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+
+tags:
+  - name: public
+    description: API, доступный пользователям
+  - name: private
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /public/product:
+    post:
+      tags:
+        - product
+        - public
+      summary: Поиск товаров в каталоге
+      description: Поиск товаров в каталоге
+      operationId: searchProducts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductQueryFilterDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+  /public/product/category:
+    get:
+      tags:
+        - product
+        - public
+      summary: Получить список категорий товаров
+      description: Получить список категорий товаров
+      operationId: getProductCategories
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+  /public/product/{id}:
+    get:
+      tags:
+        - product
+        - public
+      summary: Получение потребительской информации о товаре
+      description: Получение потребительской информации о товаре
+      operationId: getProduct
+      parameters:
+        - name: id
+          description: Идентификатор товара
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+  /private/product/{id}/delivery:
+    get:
+      tags:
+        - product
+        - private
+      summary: Получение транспортных свойств товаров
+      description: Получение свойств товаров для формирования запроса на доставку транспортной компанией
+      operationId: getDeliveryAttributes
+      parameters:
+        - name: id
+          description: Идентификатор товара
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDeliveryAttributesDto'
+components:
+  schemas:
+    ProductQueryFilterDto:
+      description: Фильтр поиска товаров
+      type: object
+      properties:
+        ids:
+          type: array
+          description: Идентификаторы товаров
+          items:
+            type: string
+            format: uuid
+        textQuery:
+          type: string
+          description: Строка поиска по названию
+        categoryId:
+          type: string
+          format: uuid
+          description: Идентификатор категории
+        minCost:
+          type: number
+          description: Минимальная цена
+        maxCost:
+          type: number
+          description: Максимальная цена
+        sortOrder:
+          type: string
+          description: Сортировка
+          enum:
+            - PRICE_DESC
+            - PRICE_ASC
+            - POPULAR_FIRST
+            - DEFAULT
+          default: DEFAULT
+    CategoryDto:
+      description: Категория товара
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор категории
+        name:
+          type: string
+          description: Название категории
+    ProductDto:
+      description: Продукт
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        categoryId:
+          type: string
+          format: uuid
+          description: Идентификатор категории
+        name:
+          type: string
+          description: Название
+        description:
+          type: string
+          description: Описание товара
+        cost:
+          type: number
+          description: Цена товара, рублей
+        remainingStock:
+          type: integer
+          description: Остаток на складе
+        imagePaths:
+          type: array
+          items:
+            type: string
+            description: URL изображения
+    ProductDeliveryAttributesDto:
+      description: Транспортные свойства товара
+      type: object
+      properties:
+        weightInG:
+          type: integer
+          description: Вес груза, граммы
+        volumeInDm3:
+          type: integer
+          description: Объем, литры
+        maxLengthSm:
+          type: integer
+          description: Максимальный линейный размер, см

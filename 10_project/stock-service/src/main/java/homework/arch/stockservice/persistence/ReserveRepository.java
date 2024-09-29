@@ -12,4 +12,6 @@ public interface ReserveRepository extends CrudRepository<ReserveEntity, UUID> {
     List<ReserveEntity> findAllByOrderId(UUID orderId);
     List<ReserveEntity> findAllByCartIdAndOrderIdIsNullAndReservationTimestampGreaterThan(UUID cartId, LocalDateTime reservationTimestamp);
     List<ReserveEntity> findAllByProductId(UUID productId);
+    List<ReserveEntity> findAllByOrderIdIsNullAndReservationTimestampLessThan(LocalDateTime reservationTimestamp);
+
 }
