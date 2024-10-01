@@ -8,4 +8,5 @@ import java.util.UUID;
 public class ProductKafkaDto {
     private UUID id;
     private int available;
+    private long version;
 }

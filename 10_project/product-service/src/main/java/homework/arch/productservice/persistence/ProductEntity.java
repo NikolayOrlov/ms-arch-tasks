@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,9 +16,9 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ProductEntity {
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.AUTO)
     private UUID id;
 
     private String name;
@@ -28,4 +28,6 @@ public class ProductEntity {
     private BigDecimal cost;
 
     private int remainingStock;
+
+    private long remainingStockVersion = 0;
 }
