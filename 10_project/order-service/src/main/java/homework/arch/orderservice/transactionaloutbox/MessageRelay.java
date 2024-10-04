@@ -24,8 +24,8 @@ public class MessageRelay {
     private final Mapper mapper;
 
     @Transactional
-    public void scheduleSendOut(NotificationDto notification) {
-        notificationRepository.save(mapper.toDomain(notification).setSendStatus(NotificationEntity.SendStatus.TO_BE_SEND));
+    public void scheduleSendOut(NotificationEntity notification) {
+        notificationRepository.save(notification.setSendStatus(NotificationEntity.SendStatus.TO_BE_SEND));
         log.debug("Scheduled message '{}' to customer {}", notification.getMessage(), notification.getCustomerId());
     }
 

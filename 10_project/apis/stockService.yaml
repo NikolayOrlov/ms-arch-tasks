@@ -42,7 +42,6 @@ paths:
         content:
           application/json:
             schema:
-
               $ref: '#/components/schemas/ReserveDto'
       responses:
         '201':
@@ -65,6 +64,30 @@ paths:
       responses:
         '204':
           description: Резерв на товар снят.
+  /private/reserve/handover:
+    post:
+      tags:
+        - stock
+        - private
+      summary: Передать зарезервированные товары заказа курьеру в доставку.
+      description: Передать зарезервированные товары заказа курьеру в доставку.
+      operationId: orderHandover
+      parameters:
+        - name: "Idempotency-Key"
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderHandoverDto'
+      responses:
+        '204':
+          description: Товары переданы в доставку.
   /public/load:
     post:
       tags:
@@ -130,7 +153,7 @@ components:
                 для которой этот товар был ранее зарезервирован.
                 При снятии резерва - единственный необходимый параметр запроса.
     ReservedProductDto:
-      description:
+      description: Зарезервированный товар
       type: object
       properties:
         productId:
@@ -142,3 +165,11 @@ components:
           minimum: 1
           description: Количество единиц резервируемого товара.
           default: 1
+    OrderHandoverDto:
+      description: Информация о передаче товаров заказа в доставку
+      type: object
+      properties:
+        orderId:
+          type: string
+          format: uuid
+          description: Идентификатор заказа

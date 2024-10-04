@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  version: 2.0.0
+  title: Delivery service
+  description: Доставка заказа покупателям
+
+servers:
+  - url: '{schema}://arch.homework/api/deliveryservice'
+    variables:
+      schema:
+        enum:
+          - http
+          - https
+        default: http
+tags:
+  - name: external
+    description: API для интеграции с внешними системами
+  - name: private
+    description: API для межкомпонентного взаимодействия
+
+paths:
+  /private/delivery:
+    post:
+      tags:
+        - delivery
+        - private
+      summary: Создать заявку на доставку.
+      description: Создать заявку на готовый к отправке со склада товар.
+      operationId: newDelivery
+      parameters:
+        - name: "Idempotency-Key"
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+      responses:
+        '201':
+          description: Заявка на доставку создана.
+    get:
+      tags:
+        - delivery
+        - private
+      summary: Получение информации о доставке.
+      description: Получение информации о доставке.
+      operationId: getDelivery
+      parameters:
+        - name: orderId
+          description: Идентификатор заказа
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryDto'
+  /private/delivery/sent:
+    put:
+      tags:
+        - delivery
+        - private
+      summary: Подтвердить передачу товаров заказа в доставку курьеру транспортной компании.
+      description: Подтвердить передачу товаров заказа в доставку курьеру транспортной компании.
+      operationId: orderHandover
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+      responses:
+        '204':
+          description: Информация о передачи заказа в доставку принята.
+  /external/delivery/confirmed:
+    put:
+      tags:
+        - delivery
+        - external
+      summary: Подтвердить получение заказа покупателем.
+      description: Подтвердить получение доставленного заказа покупателем.
+      operationId: deliveryConfirmed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryDto'
+      responses:
+        '204':
+          description: Информация о получении заказа принята.
+components:
+  schemas:
+    DeliveryDto:
+      description: Доставка заказа транспортной компанией.
+      type: object
+      required:
+        - orderId
+      properties:
+        orderId:
+          type: string
+          format: uuid
+          description: Идентификатор заказа.
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemDto'
+        deliveryAddress:
+          $ref: '#/components/schemas/DeliveryAddressDto'
+        status:
+          $ref: '#/components/schemas/DeliveryStatusDto'
+    LineItemDto:
+      description: Товарная позиция заказа к отправке.
+      type: object
+      required:
+        - productId
+      properties:
+        productId:
+          type: string
+          format: uuid
+          description: Идентификатор товара
+        quantity:
+          type: integer
+          minimum: 1
+          description: Количество товара
+          default: 1
+    DeliveryAddressDto:
+      description: Адрес доставки
+      type: object
+      properties:
+        asText:
+          type: string
+          description: Текстовое представление адреса
+    DeliveryStatusDto:
+      type: string
+      enum:
+        - NEW
+        - SENT
+        - DELIVERED

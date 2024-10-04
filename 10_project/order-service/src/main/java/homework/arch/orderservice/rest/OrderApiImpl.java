@@ -6,8 +6,10 @@ import homework.arch.idempotency.Idempotent;
 import homework.arch.monitoring.ExecutionMonitoring;
 import homework.arch.orderservice.api.dto.generated.OrderDto;
 import homework.arch.orderservice.api.generated.OrderApi;
-import homework.arch.orderservice.client.notification.dto.generated.NotificationDto;
+import homework.arch.orderservice.client.delivery.generated.DeliveryApiClient;
+import homework.arch.orderservice.client.delivery.dto.generated.DeliveryDto;
 import homework.arch.orderservice.mapper.Mapper;
+import homework.arch.orderservice.persistence.NotificationEntity;
 import homework.arch.orderservice.persistence.OrderEntity;
 import homework.arch.orderservice.persistence.OrderRepository;
 import homework.arch.orderservice.transactionaloutbox.MessageRelay;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +35,8 @@ public class OrderApiImpl implements OrderApi {
     private final Mapper mapper;
     private final HttpServletRequest httpServletRequest;
     private final MessageRelay messageRelay;
+    private final DeliveryApiClient deliveryApiClient;
+    private static final EnumSet<OrderEntity.OrderStatus> IN_DELIVERY_STATUSES = EnumSet.of(OrderEntity.OrderStatus.READY_FOR_DELIVERY, OrderEntity.OrderStatus.SENT);
 
     @Override
     @ExecutionMonitoring
@@ -46,12 +51,15 @@ public class OrderApiImpl implements OrderApi {
     @Transactional
     @ExecutionMonitoring
     public ResponseEntity<Void> updateOrderStatus(UUID orderId, String newStatusAsString) {
+        // TODO: to validate order state flow
         var newStatus = OrderEntity.OrderStatus.valueOf(newStatusAsString);
         var order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException(orderId.toString()));
         order.setStatus(newStatus);
         orderRepository.save(order);
         if (newStatus == OrderEntity.OrderStatus.CHARGED) {
-            messageRelay.scheduleSendOut(new NotificationDto().customerId(order.getCustomerId()).orderId(orderId).message("Order %s charged".formatted(orderId)));
+            messageRelay.scheduleSendOut(new NotificationEntity().setCustomerId(order.getCustomerId()).setOrderId(orderId).setMessage("Order %s charged".formatted(orderId)));
+        } else if (newStatus == OrderEntity.OrderStatus.READY_FOR_DELIVERY) {
+            deliveryApiClient.newDelivery(UUID.randomUUID(), new DeliveryDto().orderId(orderId));
         }
         log.debug("Order {} set to status '{}'", orderId, newStatusAsString);
         return ResponseEntity.noContent().build();
@@ -67,11 +75,17 @@ public class OrderApiImpl implements OrderApi {
 
     @Override
     @ExecutionMonitoring
+    @Transactional
     public ResponseEntity<OrderDto> getOrder(UUID orderId) {
         var customerId = getAuthenticatedUserId(httpServletRequest);
         var order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException(orderId.toString()));
         if (!order.getCustomerId().equals(customerId)) {
             throw new UnauthorizedException(customerId.toString());
+        }
+        if (IN_DELIVERY_STATUSES.contains(order.getStatus())) {
+            var delivery = deliveryApiClient.getDelivery(orderId).getBody();
+            order.setStatus(mapper.toEntity(delivery.getStatus()));
+            orderRepository.save(order);
         }
         return ResponseEntity.ok(mapper.toDto(order));
     }

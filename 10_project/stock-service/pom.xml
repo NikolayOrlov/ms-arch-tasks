@@ -204,6 +204,44 @@
 							<additionalProperties>removeEnumValuePrefix=false</additionalProperties>
 						</configuration>
 					</execution>
+					<execution>
+						<id>order-client</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/../apis/orderService.yaml</inputSpec>
+							<!-- https://openapi-generator.tech/docs/generators/spring -->
+							<generatorName>spring</generatorName>
+							<configOptions>
+								<sourceFolder>src/gen/java/main</sourceFolder>
+								<dateLibrary>java8-localdatetime</dateLibrary>
+								<library>spring-cloud</library>
+								<apiPackage>${base.package.name}.client.order.generated</apiPackage>
+								<modelPackage>${base.package.name}.client.order.dto.generated</modelPackage>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>delivery-client</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/../apis/deliveryService.yaml</inputSpec>
+							<!-- https://openapi-generator.tech/docs/generators/spring -->
+							<generatorName>spring</generatorName>
+							<configOptions>
+								<sourceFolder>src/gen/java/main</sourceFolder>
+								<dateLibrary>java8-localdatetime</dateLibrary>
+								<library>spring-cloud</library>
+								<apiPackage>${base.package.name}.client.delivery.generated</apiPackage>
+								<modelPackage>${base.package.name}.client.delivery.dto.generated</modelPackage>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
