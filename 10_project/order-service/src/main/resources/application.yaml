@@ -24,6 +24,7 @@ management:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
 notification.url: notificationservice:8080/api/notificationservice
+delivery.url: deliveryservice:8080/api/deliveryservice
 logging.level.homework.arch: DEBUG
 spring.cloud.discovery.client.composite-indicator.enabled: false
 spring.jackson.default-property-inclusion: NON_NULL

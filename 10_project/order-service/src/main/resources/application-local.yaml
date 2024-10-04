@@ -1,3 +1,4 @@
 server.port: 8082
 logging.level.homework.arch: DEBUG
 notification.url: localhost:8085/api/notificationservice
+delivery.url: localhost:8087/api/deliveryservice

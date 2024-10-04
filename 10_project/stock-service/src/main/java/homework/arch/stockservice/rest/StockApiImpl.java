@@ -4,9 +4,14 @@ import homework.arch.exception.NotFoundException;
 import homework.arch.idempotency.Idempotent;
 import homework.arch.monitoring.ExecutionMonitoring;
 import homework.arch.stockservice.api.dto.generated.GetReservations200Response;
+import homework.arch.stockservice.api.dto.generated.OrderHandoverDto;
 import homework.arch.stockservice.api.dto.generated.ReserveDto;
 import homework.arch.stockservice.api.dto.generated.ReservedProductDto;
 import homework.arch.stockservice.api.generated.StockApi;
+import homework.arch.stockservice.client.delivery.dto.generated.DeliveryDto;
+import homework.arch.stockservice.client.delivery.generated.DeliveryApiClient;
+import homework.arch.stockservice.client.order.dto.generated.OrderStatusDto;
+import homework.arch.stockservice.client.order.generated.OrderApiClient;
 import homework.arch.stockservice.exception.NotSufficientOnStockException;
 import homework.arch.stockservice.kafka.AvailableProductProducer;
 import homework.arch.stockservice.mapper.Mapper;
@@ -28,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -43,12 +50,15 @@ public class StockApiImpl implements StockApi {
     private final Mapper mapper;
     private final AvailableProductProducer productProducer;
     private final ProductRepository productRepository;
+    private final DeliveryApiClient deliveryApiClient;
+    private final OrderApiClient orderApiClient;
     @Value("${cartReserveMinutes:30}")
     private int cartReserveMinutes;
     @Value("${toLoadDifferentProducts:100}")
     private int toLoadDifferentProducts;
     @Value("${toLoadProductQuantityOnStock:10000}")
     private int toLoadProductQuantityOnStock;
+    private static ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
     @Transactional
@@ -67,6 +77,7 @@ public class StockApiImpl implements StockApi {
                             .peek(p -> p.setOrderId(reserveDto.getOrderId())
                                     .setReservationTimestamp(null)).toList());
             log.debug("Reserved for order: {}", reserveDto);
+            emulateOrderDeliveryPreparing(reserveDto.getOrderId());
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -93,6 +104,22 @@ public class StockApiImpl implements StockApi {
         result.setInCarts(counts.inCartsByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
         result.setOrdered(counts.orderedByProductId.entrySet().stream().map(e -> new ReservedProductDto().productId(e.getKey()).quantity(e.getValue())).toList());
         return ResponseEntity.ok(result);
+    }
+
+    @Override
+    @Transactional
+    @ExecutionMonitoring
+    @Idempotent
+    public ResponseEntity<Void> orderHandover(UUID idempotencyKey, OrderHandoverDto orderHandoverDto) {
+        var reserves = reserveRepository.findAllByOrderId(orderHandoverDto.getOrderId());
+        for (ReserveEntity reserve : reserves) {
+            var product = productRepository.findById(reserve.getProductId()).orElseThrow(() -> new NotFoundException(reserve.getProductId().toString()));
+            product.setOnStock(product.getOnStock() - reserve.getQuantity());
+            productRepository.save(product);
+        }
+        reserveRepository.deleteAll(reserves);
+        deliveryApiClient.orderHandover(new DeliveryDto().orderId(orderHandoverDto.getOrderId()));
+        return ResponseEntity.noContent().build();
     }
 
     private ReservedProductCounts getReservedCounts(UUID productId) {
@@ -154,5 +181,30 @@ public class StockApiImpl implements StockApi {
         int getReserved(UUID productId) {
             return inCartsByProductId.getOrDefault(productId, 0) + orderedByProductId.getOrDefault(productId, 0);
         }
+    }
+
+    private void emulateOrderDeliveryPreparing(UUID orderId) {
+        executor.execute(() -> {
+            for(int i = 0; i < 30; i++) {
+                try {
+                    var order = orderApiClient.getOrder(orderId).getBody();
+                    if (order != null) {
+                        if (order.getStatus() == OrderStatusDto.FAILED) {
+                            log.info("Order {} failed", orderId);
+                            break;
+                        } else if (order.getStatus() == OrderStatusDto.CHARGED) {
+                            orderApiClient.updateOrderStatus(orderId, OrderStatusDto.READY_FOR_DELIVERY.getValue());
+                            log.info("Order {} ready for delivery", orderId);
+                            break;
+                        }
+                    } else {
+                        log.warn("Can't get order {} status", orderId);
+                    }
+                    Thread.sleep(1000);
+                } catch (Exception ex) {
+                    log.warn("emulateOrderDeliveryPreparing exception: {}", ex.getMessage());
+                }
+            }
+        });
     }
 }
