@@ -1,8 +1,8 @@
 spring:
   application.name: stockservice
   kafka:
-    bootstrap-servers: u59-kafka.lan:9092
-    topic: products
+    bootstrap-servers: ${kafka_servers}
+    topic: ${products_topic}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

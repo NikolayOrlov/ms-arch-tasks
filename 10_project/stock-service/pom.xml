@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>homework.arch</groupId>
 	<artifactId>stockservice</artifactId>
-	<version>3.0.1</version>
+	<version>3.1.0</version>
 	<name>stockservice</name>
 	<description>Homework project for OTUS</description>
 	<url/>

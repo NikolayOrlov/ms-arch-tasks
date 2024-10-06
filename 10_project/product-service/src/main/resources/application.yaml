@@ -1,8 +1,8 @@
 spring:
   application.name: productservice
   kafka:
-    bootstrap-servers: u59-kafka.lan:9092
-    topic: products
+    bootstrap-servers: ${kafka_servers}
+    topic: ${products_topic}
     consumer:
       group-id: ${spring.application.name}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

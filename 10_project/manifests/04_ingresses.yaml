@@ -202,3 +202,43 @@ spec:
                 name: notificationservice
                 port:
                   number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: productservice
+  labels:
+    app: productservice
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/productservice/public
+            pathType: Prefix
+            backend:
+              service:
+                name: productservice
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deliveryservice-ext
+  labels:
+    app: deliveryservice
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /api/deliveryservice/external
+            pathType: Prefix
+            backend:
+              service:
+                name: deliveryservice
+                port:
+                  number: 8080
