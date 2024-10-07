@@ -1,0 +1,1833 @@
+{
+	"info": {
+		"_postman_id": "84f2cf6b-ac06-4bc9-bfc3-39adbf940c46",
+		"name": "SAGA by idempotent API with auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16432232"
+	},
+	"item": [
+		{
+			"name": "регистрация user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful register\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"password\", pm.variables.replaceIn('{{$randomPassword}}'));",
+							"pm.collectionVariables.set(\"email\", pm.variables.replaceIn('{{$randomEmail}}'));",
+							"pm.collectionVariables.set(\"login\", pm.variables.replaceIn('{{$randomUserName}}'));",
+							"pm.collectionVariables.set(\"name\", pm.variables.replaceIn('{{$randomFullName}}'));",
+							"pm.collectionVariables.set(\"phone1\", pm.variables.replaceIn('{{$randomPhoneNumber}}'));",
+							"pm.collectionVariables.set(\"address1\", pm.variables.replaceIn('{{$randomStreetAddress}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\": \"{{login}}\", \n\t\"password\": \"{{password}}\",\n    \"name\": \"{{name}}\",\n\t\"email\": \"{{email}}\",\n\t\"phone\": \"{{phone1}}\",\n\t\"address\": \"{{address1}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1 unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test unauthorized GET request to profile data\", function () {",
+							"    pm.response.to.have.status(302);",
+							"    console.log(pm.response.headers);",
+							"    var redirectUrl = pm.response.headers.get('Location');",
+							"    pm.expect(redirectUrl).to.contains(\"/sign-in-page\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profileservice/public/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profileservice",
+						"public",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "логин user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful login\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.body(\"SUCCESS\");",
+							"    pm.collectionVariables.set(\"user1sessionId\", pm.cookies.get('SESSIONID'));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{login}}'));",
+							"console.log(pm.variables.replaceIn('{{password}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"{{login}}\", \"password\": \"{{password}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to profile data\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"name\"));",
+							"    pm.expect(jsonData.email).to.eql(pm.collectionVariables.get(\"email\"));",
+							"    pm.expect(jsonData.phone).to.eql(pm.collectionVariables.get(\"phone1\"));",
+							"    pm.expect(jsonData.address).to.eql(pm.collectionVariables.get(\"address1\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profileservice/public/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profileservice",
+						"public",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "обновить профиль user1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"phone2\", pm.variables.replaceIn('{{$randomPhoneNumber}}'))",
+							"pm.collectionVariables.set(\"address2\", pm.variables.replaceIn('{{$randomStreetAddress}}'))"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test PUT request to update profile data\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"phone\": \"{{phone2}}\", \"address\": \"{{address2}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/profileservice/public/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profileservice",
+						"public",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1 после обновления",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test GET request to profile data\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"name\"));",
+							"    pm.expect(jsonData.email).to.eql(pm.collectionVariables.get(\"email\"));",
+							"    pm.expect(jsonData.phone).to.eql(pm.collectionVariables.get(\"phone2\"));",
+							"    pm.expect(jsonData.address).to.eql(pm.collectionVariables.get(\"address2\"));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profileservice/public/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profileservice",
+						"public",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "поиск товаров",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Products found\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product1Id = responseBody[0].id;",
+							"    var product2Id = responseBody[99].id;",
+							"    pm.collectionVariables.set(\"product1Id\", product1Id);",
+							"    pm.collectionVariables.set(\"product2Id\", product2Id);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{newCustomerCartLineItemIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/productservice/public/product",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"productservice",
+						"public",
+						"product"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "добавление в корзину первого продукта",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Product 1 is added to the customer's cart\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"newCustomerCartLineItemIdempotencyKey\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{newCustomerCartLineItemIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"productId\": \"{{product1Id}}\",\n  \"quantity\": 1,\n  \"price\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cartservice/public/line-item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cartservice",
+						"public",
+						"line-item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "retry добавление в корзину первого продукта",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retry for product 1 returns the same as the 1st call\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{newCustomerCartLineItemIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"productId\": \"{{product1Id}}\",\n  \"quantity\": 1,\n  \"price\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cartservice/public/line-item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cartservice",
+						"public",
+						"line-item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка временного резервирования товара, помещенного в корзину",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check product 1 is reserved temporary for the cart\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product1Id = pm.collectionVariables.get(\"product1Id\");",
+							"    pm.expect(responseBody.inCarts[0].productId).to.equal(product1Id);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve?product_id={{product1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "product_id",
+							"value": "{{product1Id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "начать оформление первого заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Checkout 1 is started\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var paymentId = responseBody.payment.id;",
+							"    pm.collectionVariables.set(\"payment1Id\", paymentId);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"checkoutIdempotencyKey\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{checkoutIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"paymentWay\": {\n    \"type\": \"CARD\"\n  },\n  \"deliveryAddress\": {\n    \"asText\": \"my address\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/checkoutservice/public/checkout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"checkoutservice",
+						"public",
+						"checkout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "retry начать оформление первого заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retry for checkout 1 returns the same as the 1st call\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var paymentId = responseBody.payment.id;",
+							"    pm.expect(paymentId).to.equal(pm.collectionVariables.get(\"payment1Id\"));",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{checkoutIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"paymentWay\": {\n    \"type\": \"CARD\"\n  },\n  \"deliveryAddress\": {\n    \"asText\": \"my address\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/checkoutservice/public/checkout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"checkoutservice",
+						"public",
+						"checkout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка состояния первого заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check order 1 state is 'CHARGE_PENDING' after the checkout process is started\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var orderId = responseBody[0].id;",
+							"    pm.collectionVariables.set(\"order1Id\", orderId);",
+							"    var orderStatus = responseBody[0].status;",
+							"    pm.expect(orderStatus).to.equal(\"CHARGE_PENDING\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orderservice/public/order",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orderservice",
+						"public",
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка резервирования первого товара после начала оформления первого заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check product 1 is reserved for order 1\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product1Id = pm.collectionVariables.get(\"product1Id\");",
+							"    pm.expect(responseBody.ordered[0].productId).to.equal(product1Id);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve?product_id={{product1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "product_id",
+							"value": "{{product1Id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "подтвердить успешную оплату",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Confirm payment 1 is succeeded\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"paymentStatus\": \"PROCESSED\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/checkoutservice/external/payment/{{payment1Id}}/confirmation",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"checkoutservice",
+						"external",
+						"payment",
+						"{{payment1Id}}",
+						"confirmation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка состояния первого заказа после успешной оплаты",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check order 1 state is 'CHARGED' or 'READY_FOR_DELIVERY' (if a CHARGED order is already become READY_TO_DELIVERY) after payment success\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var orderStatus = responseBody.status;",
+							"    pm.expect(orderStatus).to.be.oneOf([\"CHARGED\", \"READY_FOR_DELIVERY\"]);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orderservice/public/order/{{order1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orderservice",
+						"public",
+						"order",
+						"{{order1Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка резервирования первого товара после оплаты первого заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check product 1 is still reserved for the order 1 after payment succeeded\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product1Id = pm.collectionVariables.get(\"product1Id\");",
+							"    pm.expect(responseBody.ordered[0].productId).to.equal(product1Id);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve?product_id={{product1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "product_id",
+							"value": "{{product1Id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "передать заказ со склада в доставку",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Order handover is done\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"handoverIdempotencyKey\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"setTimeout(function(){}, 3000);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{handoverIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"orderId\": \"{{order1Id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve/handover",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve",
+						"handover"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка состояния первого заказа после передачи его в доставку",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check order 1 state is 'SENT'\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var orderStatus = responseBody.status;",
+							"    pm.expect(orderStatus).to.equal(\"SENT\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orderservice/public/order/{{order1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orderservice",
+						"public",
+						"order",
+						"{{order1Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "подтвердить доставку",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delivery is done\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"handoverIdempotencyKey\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"setTimeout(function(){}, 3000);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{handoverIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"orderId\": \"{{order1Id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/deliveryservice/external/delivery/confirmed",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"deliveryservice",
+						"external",
+						"delivery",
+						"confirmed"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка состояния первого заказа после выполненной доставки",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check order 1 state is 'SENT'\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var orderStatus = responseBody.status;",
+							"    pm.expect(orderStatus).to.equal(\"DELIVERED\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orderservice/public/order/{{order1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orderservice",
+						"public",
+						"order",
+						"{{order1Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "добавление в корзину второго продукта",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Product 2 is added to the customer's cart\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"newCustomerCartLineItemIdempotencyKey\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{newCustomerCartLineItemIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"productId\": \"{{product2Id}}\",\n  \"quantity\": 1,\n  \"price\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/cartservice/public/line-item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"cartservice",
+						"public",
+						"line-item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка временного резервирования второго товара, помещенного в корзину",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check product 2 is reserved temporary for the cart\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product2Id = pm.collectionVariables.get(\"product2Id\");",
+							"    pm.expect(responseBody.inCarts[0].productId).to.equal(product2Id);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve?product_id={{product2Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "product_id",
+							"value": "{{product2Id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "начать оформление второго заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Checkout 2 is started\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var paymentId = responseBody.payment.id;",
+							"    pm.collectionVariables.set(\"payment2Id\", paymentId);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"checkoutIdempotencyKey\", pm.variables.replaceIn('{{$randomUUID}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Idempotency-Key",
+						"value": "{{checkoutIdempotencyKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"paymentWay\": {\n    \"type\": \"CARD\"\n  },\n  \"deliveryAddress\": {\n    \"asText\": \"my address\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/checkoutservice/public/checkout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"checkoutservice",
+						"public",
+						"checkout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка состояния второго заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check order 2 state is 'CHARGE_PENDING' after the checkout process is started\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var orderId = responseBody[0].id;",
+							"    pm.collectionVariables.set(\"order2Id\", orderId);",
+							"    var orderStatus = responseBody[0].status;",
+							"    pm.expect(orderStatus).to.equal(\"CHARGE_PENDING\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orderservice/public/order",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orderservice",
+						"public",
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка резервирования второго товара после начала оформления второго заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check product 2 is reserved for order 2\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product2Id = pm.collectionVariables.get(\"product2Id\");",
+							"    pm.expect(responseBody.ordered[0].productId).to.equal(product2Id);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve?product_id={{product2Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "product_id",
+							"value": "{{product2Id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "оплата второго заказа не прошла",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Payment 2 is failed\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"paymentStatus\": \"FAILED\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/checkoutservice/external/payment/{{payment2Id}}/confirmation",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"checkoutservice",
+						"external",
+						"payment",
+						"{{payment2Id}}",
+						"confirmation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка состояния второго заказа после не прошедшей оплаты",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check order 2 state is 'FAILED' after payment failure\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var orderStatus = responseBody.status;",
+							"    pm.expect(orderStatus).to.equal(\"FAILED\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/orderservice/public/order/{{order2Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"orderservice",
+						"public",
+						"order",
+						"{{order2Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "проверка резервирования второго товара после не прошедшей оплаты второго заказа",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check product 2 is not reserved for order anymore but reserved for cart after payment failure\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    var responseBody = pm.response.json();",
+							"    var product2Id = pm.collectionVariables.get(\"product2Id\");",
+							"    pm.expect(responseBody.inCarts[0].productId).to.equal(product2Id);",
+							"    pm.expect(responseBody.ordered.length).to.equal(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/stockservice/public/reserve?product_id={{product2Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"stockservice",
+						"public",
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "product_id",
+							"value": "{{product2Id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "логаут user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test successful logout\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/logout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "профиль user1 unauthorized после логаут",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test unauthorized GET request to profile data\", function () {",
+							"    pm.response.to.have.status(302);",
+							"    console.log(pm.response.headers);",
+							"    var redirectUrl = pm.response.headers.get('Location');",
+							"    pm.expect(redirectUrl).to.contains(\"/sign-in-page\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.variables.replaceIn('{{baseUrl}}'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/profileservice/public/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"profileservice",
+						"public",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const jar = pm.cookies.jar();",
+					"",
+					"jar.clear(pm.request.url, function (error) {",
+					"  // error - <Error>",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://arch.homework",
+			"type": "string"
+		},
+		{
+			"key": "customerId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product1Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product2Id",
+			"value": ""
+		},
+		{
+			"key": "order2Id",
+			"value": ""
+		},
+		{
+			"key": "order1Id",
+			"value": ""
+		},
+		{
+			"key": "orderId",
+			"value": ""
+		},
+		{
+			"key": "payment1Id",
+			"value": ""
+		},
+		{
+			"key": "payment2Id",
+			"value": ""
+		},
+		{
+			"key": "newCustomerCartLineItemIdempotencyKey",
+			"value": ""
+		},
+		{
+			"key": "checkoutIdempotencyKey",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "login",
+			"value": ""
+		},
+		{
+			"key": "name",
+			"value": ""
+		},
+		{
+			"key": "phone1",
+			"value": ""
+		},
+		{
+			"key": "address1",
+			"value": ""
+		},
+		{
+			"key": "user1sessionId",
+			"value": ""
+		},
+		{
+			"key": "phone2",
+			"value": ""
+		},
+		{
+			"key": "address2",
+			"value": ""
+		},
+		{
+			"key": "handoverIdempotencyKey",
+			"value": ""
+		}
+	]
+}

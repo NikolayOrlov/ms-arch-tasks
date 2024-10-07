@@ -1,0 +1,188 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: authservice-monitor
+  labels:
+    app: authservice-monitor
+spec:
+  endpoints:
+  # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: authservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: profileservice-monitor
+  labels:
+    app: profileservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/profileservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: profileservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: checkoutservice-monitor
+  labels:
+    app: checkoutservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/checkoutservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: orderservice-monitor
+  labels:
+    app: orderservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/orderservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: orderservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cartservice-monitor
+  labels:
+    app: cartservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/cartservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: cartservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: stockservice-monitor
+  labels:
+    app: stockservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/stockservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: stockservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: notificationservice-monitor
+  labels:
+    app: notificationservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/notificationservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: notificationservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: productservice-monitor
+  labels:
+    app: productservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/productservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: productservice
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: deliveryservice-monitor
+  labels:
+    app: deliveryservice-monitor
+spec:
+  endpoints:
+    # IMPORTANT! should correspond to the service port name - "http"
+    - port: http
+      scrapeTimeout: 30s
+      path: /api/deliveryservice/actuator/prometheus
+      honorLabels: true
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - otus
+  selector:
+    matchLabels:
+      app: deliveryservice
