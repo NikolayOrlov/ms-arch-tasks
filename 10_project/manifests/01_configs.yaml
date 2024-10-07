@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-configs
+data:
+  kafka_servers: "u59-kafka.lan:9092"
+  products_topic: "products_v1"
