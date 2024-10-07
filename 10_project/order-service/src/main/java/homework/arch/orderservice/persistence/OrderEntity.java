@@ -28,7 +28,7 @@ public class OrderEntity {
 
     private BigDecimal price;
 
-    private LocalDateTime date;
+    private LocalDateTime date = LocalDateTime.now();
 
     private OrderStatus status;
 

@@ -117,7 +117,7 @@ spec:
         app: orderservice
     spec:
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.2.0
+        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.3.1
           name: orderservice-container
           ports:
             - name: http
@@ -194,7 +194,7 @@ spec:
         app: stockservice
     spec:
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.1.0
+        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.1.2
           name: stockservice-container
           env:
             - name: kafka_servers
@@ -330,7 +330,7 @@ spec:
         app: deliveryservice
     spec:
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-deliveryservice:2.0.0
+        - image: gmnvnorlov/ms-arch-tasks-deliveryservice:2.0.1
           name: deliveryservice-container
           ports:
             - name: http

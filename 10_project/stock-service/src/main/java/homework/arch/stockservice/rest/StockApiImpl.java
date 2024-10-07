@@ -185,8 +185,9 @@ public class StockApiImpl implements StockApi {
 
     private void emulateOrderDeliveryPreparing(UUID orderId) {
         executor.execute(() -> {
-            for(int i = 0; i < 30; i++) {
+            for(int i = 0; i < 300; i++) {
                 try {
+                    Thread.sleep(1000);
                     var order = orderApiClient.getOrder(orderId).getBody();
                     if (order != null) {
                         if (order.getStatus() == OrderStatusDto.FAILED) {
@@ -200,7 +201,6 @@ public class StockApiImpl implements StockApi {
                     } else {
                         log.warn("Can't get order {} status", orderId);
                     }
-                    Thread.sleep(1000);
                 } catch (Exception ex) {
                     log.warn("emulateOrderDeliveryPreparing exception: {}", ex.getMessage());
                 }

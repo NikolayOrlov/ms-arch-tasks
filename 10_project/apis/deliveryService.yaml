@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 2.0.0
+  version: 2.0.1
   title: Delivery service
   description: Доставка заказа покупателям
 
@@ -81,7 +81,7 @@ paths:
               $ref: '#/components/schemas/DeliveryDto'
       responses:
         '204':
-          description: Информация о передачи заказа в доставку принята.
+          description: Информация о передаче заказа в доставку принята.
   /external/delivery/confirmed:
     put:
       tags:

@@ -28,7 +28,7 @@ public class DeliveryApiImpl implements DeliveryApi {
     @Idempotent
     @ExecutionMonitoring
     public ResponseEntity<Void> newDelivery(UUID idempotencyKey, DeliveryDto deliveryDto) {
-        deliveryRepository.save(new DeliveryEntity());
+        deliveryRepository.save(new DeliveryEntity().setOrderId(deliveryDto.getOrderId()));
         // TODO: interaction with an external delivery provider service to request the order delivery
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

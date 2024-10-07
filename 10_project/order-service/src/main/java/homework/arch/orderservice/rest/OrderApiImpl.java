@@ -69,24 +69,38 @@ public class OrderApiImpl implements OrderApi {
     @ExecutionMonitoring
     public ResponseEntity<List<OrderDto>> getCustomerOrders() {
         var customerId = getAuthenticatedUserId(httpServletRequest);
-        var result = orderRepository.findAllByCustomerId(customerId).stream().map(mapper::toDto).toList();
+        var result = orderRepository.findAllByCustomerIdOrderByDateDesc(customerId).stream().map(mapper::toDto).toList();
         return ResponseEntity.ok(result);
     }
 
     @Override
     @ExecutionMonitoring
     @Transactional
-    public ResponseEntity<OrderDto> getOrder(UUID orderId) {
+    public ResponseEntity<OrderDto> getCustomerOrder(UUID orderId) {
         var customerId = getAuthenticatedUserId(httpServletRequest);
-        var order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException(orderId.toString()));
+        var order = getOrderCommon(orderId);
         if (!order.getCustomerId().equals(customerId)) {
             throw new UnauthorizedException(customerId.toString());
         }
+        return ResponseEntity.ok(mapper.toDto(order));
+    }
+
+    @Override
+    @ExecutionMonitoring
+    @Transactional
+    public ResponseEntity<OrderDto> getOrder(UUID orderId) {
+        var order = getOrderCommon(orderId);
+        return ResponseEntity.ok(mapper.toDto(order));
+    }
+
+    private OrderEntity getOrderCommon(UUID orderId) {
+        var order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException(orderId.toString()));
         if (IN_DELIVERY_STATUSES.contains(order.getStatus())) {
             var delivery = deliveryApiClient.getDelivery(orderId).getBody();
             order.setStatus(mapper.toEntity(delivery.getStatus()));
-            orderRepository.save(order);
+            order = orderRepository.save(order);
         }
-        return ResponseEntity.ok(mapper.toDto(order));
+        return order;
     }
+
 }

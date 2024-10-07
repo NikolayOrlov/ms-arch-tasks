@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 3.2.0
+  version: 3.3.1
   title: Order service
   description: Выполнение заказа
 
@@ -43,7 +43,7 @@ paths:
         - public
       summary: Получение пользователем информации о заказе.
       description: Получение пользователем информации о заказе.
-      operationId: getOrder
+      operationId: getCustomerOrder
       parameters:
         - name: id
           description: Идентификатор заказа
@@ -88,6 +88,29 @@ paths:
               schema:
                 type: string
                 description: Идентификатор заказа
+  /private/order/{id}:
+    get:
+      tags:
+        - order
+        - public
+      summary: Получение информации о заказе.
+      description: Получение информации о заказе.
+      operationId: getOrder
+      parameters:
+        - name: id
+          description: Идентификатор заказа
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
   /private/order/{id}/status:
     put:
       tags:
