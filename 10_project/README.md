@@ -1,4 +1,4 @@
-# Идемпотентость API в HTTP
+# Проектная работа
 
 ## Общая схема взаимодействия компонентов
 
@@ -52,11 +52,11 @@ docker push gmnvnorlov/ms-arch-tasks-profileservice:3.0.3
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t checkoutservice:3.0.2 .
+docker build --platform linux/amd64 -t checkoutservice:3.1.0 .
 
-docker image tag checkoutservice:3.0.2 gmnvnorlov/ms-arch-tasks-checkoutservice:3.0.2
+docker image tag checkoutservice:3.1.0 gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
 
-docker push gmnvnorlov/ms-arch-tasks-checkoutservice:3.0.2
+docker push gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
 ```
 
 ### Сборка java приложения, docker образа orderservice (в папке order-service)
@@ -112,11 +112,11 @@ docker push gmnvnorlov/ms-arch-tasks-notificationservice:2.0.2
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t productservice:2.0.2 .
+docker build --platform linux/amd64 -t productservice:2.1.0 .
 
-docker image tag productservice:2.0.2 gmnvnorlov/ms-arch-tasks-productservice:2.0.2
+docker image tag productservice:2.1.0 gmnvnorlov/ms-arch-tasks-productservice:2.1.0
 
-docker push gmnvnorlov/ms-arch-tasks-productservice:2.0.2
+docker push gmnvnorlov/ms-arch-tasks-productservice:2.1.0
 ```
 
 ### Сборка java приложения, docker образа deliveryservice (в папке deliveryservice-service)

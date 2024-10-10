@@ -27,6 +27,7 @@ public class ProductApiImpl implements ProductApi {
 
     @Override
     public ResponseEntity<List<ProductDto>> searchProducts(ProductQueryFilterDto productQueryFilterDto) {
+        log.debug("searchProducts: {}", productQueryFilterDto);
         return ResponseEntity.ok(productRepository.findAll().stream().filter(getSearchPredicate(productQueryFilterDto)).map(mapper::toDto).toList());
     }
 
@@ -38,6 +39,7 @@ public class ProductApiImpl implements ProductApi {
 
     @Override
     public ResponseEntity<ProductDto> getProduct(UUID id) {
+        log.debug("getProduct: {}", id);
         return ResponseEntity.ok(mapper.toDto(productRepository.findById(id).orElseThrow(() -> new NotFoundException(id.toString()))));
     }
 }

@@ -78,9 +78,34 @@ spec:
       labels:
         app: checkoutservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.0.2
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: POD_NAME
+              value: checkoutservice
+            - name: POD_NAMESPACE
+              value: otus
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
           name: checkoutservice-container
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
@@ -280,8 +305,30 @@ spec:
       labels:
         app: productservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-productservice:2.0.2
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: POD_NAME
+              value: productservice
+            - name: POD_NAMESPACE
+              value: otus
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-productservice:2.1.0
           name: productservice-container
           env:
             - name: kafka_servers
@@ -294,6 +341,9 @@ spec:
                 configMapKeyRef:
                   name: common-configs
                   key: products_topic
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
