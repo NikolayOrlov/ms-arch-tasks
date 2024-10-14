@@ -18,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 public class MessageRelay {
     // TODO: to implement it concurrency safe
-    private final int SEND_OUT_PERIOD_EVERY_MINUTE_IN_MS = 1000 * 60;
+    private final int SEND_OUT_PERIOD_EVERY_5S_IN_MS = 1000 * 5;
     private final NotificationRepository notificationRepository;
     private final NotificationApiClient notificationApiClient;
     private final Mapper mapper;
@@ -29,7 +29,7 @@ public class MessageRelay {
         log.debug("Scheduled message '{}' to customer {}", notification.getMessage(), notification.getCustomerId());
     }
 
-    @Scheduled(fixedDelay = SEND_OUT_PERIOD_EVERY_MINUTE_IN_MS)
+    @Scheduled(fixedDelay = SEND_OUT_PERIOD_EVERY_5S_IN_MS)
     @Transactional
     public void sendOut() {
         var toBeSend = notificationRepository.findFirstBySendStatus(NotificationEntity.SendStatus.TO_BE_SEND);

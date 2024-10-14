@@ -141,9 +141,34 @@ spec:
       labels:
         app: orderservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.3.1
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: POD_NAME
+              value: orderservice
+            - name: POD_NAMESPACE
+              value: otus
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
           name: orderservice-container
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
@@ -218,9 +243,34 @@ spec:
       labels:
         app: stockservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.1.2
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: POD_NAME
+              value: stockservice
+            - name: POD_NAMESPACE
+              value: otus
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
           name: stockservice-container
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           env:
             - name: kafka_servers
               valueFrom:

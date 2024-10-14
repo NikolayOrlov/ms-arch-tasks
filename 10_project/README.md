@@ -64,11 +64,11 @@ docker push gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t orderservice:3.3.1 .
+docker build --platform linux/amd64 -t orderservice:3.4.0 .
 
-docker image tag orderservice:3.3.1 gmnvnorlov/ms-arch-tasks-orderservice:3.3.1
+docker image tag orderservice:3.4.0 gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
 
-docker push gmnvnorlov/ms-arch-tasks-orderservice:3.3.1
+docker push gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
 ```
 
 ### Сборка java приложения, docker образа cartservice (в папке cartservice-service)
@@ -88,11 +88,11 @@ docker push gmnvnorlov/ms-arch-tasks-cartservice:3.0.1
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t stockservice:3.1.2 .
+docker build --platform linux/amd64 -t stockservice:3.2.0 .
 
-docker image tag stockservice:3.1.2 gmnvnorlov/ms-arch-tasks-stockservice:3.1.2
+docker image tag stockservice:3.2.0 gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
 
-docker push gmnvnorlov/ms-arch-tasks-stockservice:3.1.2
+docker push gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
 ```
 
 ### Сборка java приложения, docker образа notificationservice (в папке notificationservice-service)

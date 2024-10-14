@@ -29,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -112,13 +109,16 @@ public class StockApiImpl implements StockApi {
     @Idempotent
     public ResponseEntity<Void> orderHandover(UUID idempotencyKey, OrderHandoverDto orderHandoverDto) {
         var reserves = reserveRepository.findAllByOrderId(orderHandoverDto.getOrderId());
+        var productIdsToUpdateAvailable = new HashSet<UUID>();
         for (ReserveEntity reserve : reserves) {
             var product = productRepository.findById(reserve.getProductId()).orElseThrow(() -> new NotFoundException(reserve.getProductId().toString()));
+            productIdsToUpdateAvailable.add(product.getId());
             product.setOnStock(product.getOnStock() - reserve.getQuantity());
             productRepository.save(product);
         }
         reserveRepository.deleteAll(reserves);
         deliveryApiClient.orderHandover(new DeliveryDto().orderId(orderHandoverDto.getOrderId()));
+        sendOutAvailableProducts(productIdsToUpdateAvailable);
         return ResponseEntity.noContent().build();
     }
 

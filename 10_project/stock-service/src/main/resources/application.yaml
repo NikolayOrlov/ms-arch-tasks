@@ -33,6 +33,8 @@ management:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
 order.url: orderservice:8080/api/orderservice
 delivery.url: deliveryservice:8080/api/deliveryservice
-logging.level.homework.arch: DEBUG
+logging:
+  level.homework.arch: DEBUG
+  file.name: /var/log/application/application.log
 spring.cloud.discovery.client.composite-indicator.enabled: false
 spring.jackson.default-property-inclusion: NON_NULL
