@@ -153,6 +153,23 @@ helm repo update
 helm install monitoring-stack -f ./monitoring/prometheus.yaml prometheus-community/kube-prometheus-stack -n monitoring
 ```
 
+## RDB (Postgres) setup
+
+### Новый namespace "database"
+
+```
+kubectl create namespace database
+```
+
+### Установка RDB с помощью helm в database namespace
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install pgdb -f ./database/pgdb-values.yaml bitnami/postgresql -n database
+```
+default [values.yaml](https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml)
+
 ### ServiceMonitor + Grafana/Prometheus UI via ingress (grafana creds: admin / prom-operator)
 
 ```
