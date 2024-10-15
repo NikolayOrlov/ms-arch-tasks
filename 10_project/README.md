@@ -1,8 +1,19 @@
 # Проектная работа
 
-## Общая схема взаимодействия компонентов
+## Схемы развертывания и взаимодействия компонентов
 
-![Общая схема взаимодействия компонентов](saga.drawio.png)
+### Deployment diagram
+
+![Deployment diagram](charts/otus_deployment.drawio.png)
+
+### Interaction diagram (registration/authorized access)
+
+![Registration/authorized access diagram](auth_profile.drawio.png)
+
+### Interaction diagram (happy path for product acquisition with SAGA)
+
+![Success checkout diagram](success_checkout.drawio.png)
+
 
 ### Реализация идемпотентности:
 Методы, отмеченные аннотацией @Idempotent, контролируют уникальность запросов с помощью HTTP заголовка 'Idempotency-Key' в формате UUID:
