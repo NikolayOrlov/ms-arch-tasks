@@ -8,11 +8,11 @@
 
 ### Interaction diagram (registration/authorized access)
 
-![Registration/authorized access diagram](auth_profile.drawio.png)
+![Registration/authorized access diagram](charts/auth_profile.drawio.png)
 
 ### Interaction diagram (happy path for product acquisition with SAGA)
 
-![Success checkout diagram](success_checkout.drawio.png)
+![Success checkout diagram](charts/success_checkout.drawio.png)
 
 
 ### Реализация идемпотентности:
