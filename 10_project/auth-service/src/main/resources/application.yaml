@@ -1,5 +1,13 @@
 spring:
   application.name: authservice
+  jpa:
+    generate-ddl: true
+    properties.hibernate.default_schema: ${spring.application.name}
+  datasource:
+    url: jdbc:postgresql://${postgres_url}/${postgres_database}?currentSchema=${spring.jpa.properties.hibernate.default_schema}
+    driver-class-name: org.postgresql.Driver
+    username: ${postgres_username}
+    password: ${postgres_password}
 management:
   endpoint.health:
     cache.time-to-live: 20s
@@ -21,7 +29,10 @@ management:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 300ms, 400ms, 500ms, 600ms, 800ms
 customer.url: profileservice:8080/api/profileservice
-logging.level.homework.arch: DEBUG
-logging.level.org.springframework.web.client: DEBUG
+logging:
+  level:
+    homework.arch: DEBUG
+    org.springframework.web.client: DEBUG
+  file.name: /var/log/application/application_${POD_NAME}.log
 spring.cloud.discovery.client.composite-indicator.enabled: false
 spring.jackson.default-property-inclusion: NON_NULL

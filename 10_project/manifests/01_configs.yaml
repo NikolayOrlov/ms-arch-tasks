@@ -5,6 +5,9 @@ metadata:
 data:
   kafka_servers: "u59-kafka.lan:9092"
   products_topic: "products_v1"
+  postgres_url: "u59-postgresql.lan:5432"
+  postgres_database: "develop"
+  postgres_username: "dev_user"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -17,12 +20,12 @@ data:
         external_labels:
           application: otus
           env: ${POD_NAMESPACE}
-          pod: ${POD_NAME}
+          service: ${SERVICE_NAME}
+          pod_name: ${POD_NAME}
     scrape_configs:
       - job_name: "otus_${POD_NAMESPACE}_${POD_NAME}"
         static_configs:
           - targets:
               - localhost
             labels:
-              __path__: /var/log/application/application.log
-
+              __path__: /var/log/application/application_${POD_NAME}.log

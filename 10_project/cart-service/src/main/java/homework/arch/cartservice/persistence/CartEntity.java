@@ -25,6 +25,7 @@ public class CartEntity {
 
     private UUID customerId;
 
+    @Enumerated(EnumType.STRING)
     private CartStatus status;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

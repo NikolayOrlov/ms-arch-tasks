@@ -1,6 +1,8 @@
 package homework.arch.deliveryservice.persistence;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +26,7 @@ public class DeliveryEntity {
 
     private UUID orderId;
 
+    @Enumerated(EnumType.STRING)
     private DeliveryStatus status = DeliveryStatus.NEW;
 
     public enum DeliveryStatus {

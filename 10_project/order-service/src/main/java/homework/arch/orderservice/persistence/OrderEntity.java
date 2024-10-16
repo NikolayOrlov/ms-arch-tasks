@@ -1,6 +1,8 @@
 package homework.arch.orderservice.persistence;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +32,7 @@ public class OrderEntity {
 
     private LocalDateTime date = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     // TODO: to add line items

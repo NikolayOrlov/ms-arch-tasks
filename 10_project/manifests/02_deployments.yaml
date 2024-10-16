@@ -5,7 +5,7 @@ metadata:
   labels:
     app: authservice
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: authservice
@@ -14,9 +14,65 @@ spec:
       labels:
         app: authservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-authservice:3.0.1
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: SERVICE_NAME
+              value: authservice
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-authservice:3.1.3
           name: authservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
@@ -46,9 +102,65 @@ spec:
       labels:
         app: profileservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-profileservice:3.0.3
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: SERVICE_NAME
+              value: profileservice
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-profileservice:3.1.1
           name: profileservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
@@ -88,10 +200,16 @@ spec:
         - image: grafana/promtail:3.2.0
           name: promtail
           env:
-            - name: POD_NAME
+            - name: SERVICE_NAME
               value: checkoutservice
             - name: POD_NAMESPACE
-              value: otus
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/promtail/promtail-config.yaml
@@ -101,8 +219,33 @@ spec:
               mountPath: /var/log/application
             - name: promtail-config
               mountPath: /etc/promtail
-        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
+        - image: gmnvnorlov/ms-arch-tasks-checkoutservice:3.2.2
           name: checkoutservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           volumeMounts:
             - name: logs
               mountPath: /var/log/application
@@ -151,10 +294,16 @@ spec:
         - image: grafana/promtail:3.2.0
           name: promtail
           env:
-            - name: POD_NAME
+            - name: SERVICE_NAME
               value: orderservice
             - name: POD_NAMESPACE
-              value: otus
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/promtail/promtail-config.yaml
@@ -164,8 +313,33 @@ spec:
               mountPath: /var/log/application
             - name: promtail-config
               mountPath: /etc/promtail
-        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
+        - image: gmnvnorlov/ms-arch-tasks-orderservice:3.5.2
           name: orderservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           volumeMounts:
             - name: logs
               mountPath: /var/log/application
@@ -205,9 +379,65 @@ spec:
       labels:
         app: cartservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-cartservice:3.0.1
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: SERVICE_NAME
+              value: cartservice
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-cartservice:3.1.2
           name: cartservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
@@ -253,10 +483,16 @@ spec:
         - image: grafana/promtail:3.2.0
           name: promtail
           env:
-            - name: POD_NAME
+            - name: SERVICE_NAME
               value: stockservice
             - name: POD_NAMESPACE
-              value: otus
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/promtail/promtail-config.yaml
@@ -266,12 +502,32 @@ spec:
               mountPath: /var/log/application
             - name: promtail-config
               mountPath: /etc/promtail
-        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
+        - image: gmnvnorlov/ms-arch-tasks-stockservice:3.3.1
           name: stockservice-container
           volumeMounts:
             - name: logs
               mountPath: /var/log/application
           env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
             - name: kafka_servers
               valueFrom:
                 configMapKeyRef:
@@ -282,6 +538,10 @@ spec:
                 configMapKeyRef:
                   name: common-configs
                   key: products_topic
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           ports:
             - name: http
               containerPort: 8080
@@ -317,9 +577,65 @@ spec:
       labels:
         app: notificationservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-notificationservice:2.0.2
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: SERVICE_NAME
+              value: notificationservice
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-notificationservice:2.1.2
           name: notificationservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080
@@ -365,10 +681,16 @@ spec:
         - image: grafana/promtail:3.2.0
           name: promtail
           env:
-            - name: POD_NAME
+            - name: SERVICE_NAME
               value: productservice
             - name: POD_NAMESPACE
-              value: otus
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/promtail/promtail-config.yaml
@@ -378,9 +700,29 @@ spec:
               mountPath: /var/log/application
             - name: promtail-config
               mountPath: /etc/promtail
-        - image: gmnvnorlov/ms-arch-tasks-productservice:2.1.0
+        - image: gmnvnorlov/ms-arch-tasks-productservice:2.2.1
           name: productservice-container
           env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
             - name: kafka_servers
               valueFrom:
                 configMapKeyRef:
@@ -391,6 +733,10 @@ spec:
                 configMapKeyRef:
                   name: common-configs
                   key: products_topic
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           volumeMounts:
             - name: logs
               mountPath: /var/log/application
@@ -429,9 +775,65 @@ spec:
       labels:
         app: deliveryservice
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
       containers:
-        - image: gmnvnorlov/ms-arch-tasks-deliveryservice:2.0.1
+        - image: grafana/promtail:3.2.0
+          name: promtail
+          env:
+            - name: SERVICE_NAME
+              value: deliveryservice
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
+            - -config.expand-env=true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
+            - name: promtail-config
+              mountPath: /etc/promtail
+        - image: gmnvnorlov/ms-arch-tasks-deliveryservice:2.1.2
           name: deliveryservice-container
+          env:
+            - name: postgres_url
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_url
+            - name: postgres_database
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_database
+            - name: postgres_username
+              valueFrom:
+                configMapKeyRef:
+                  name: common-configs
+                  key: postgres_username
+            - name: postgres_password
+              valueFrom:
+                secretKeyRef:
+                  name: common-secrets
+                  key: postgres_password
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/application
           ports:
             - name: http
               containerPort: 8080

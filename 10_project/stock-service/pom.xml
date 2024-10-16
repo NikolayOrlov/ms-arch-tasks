@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>homework.arch</groupId>
 	<artifactId>stockservice</artifactId>
-	<version>3.2.0</version>
+	<version>3.3.1</version>
 	<name>stockservice</name>
 	<description>Homework project for OTUS</description>
 	<url/>
@@ -123,6 +123,11 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>

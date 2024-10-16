@@ -2,6 +2,8 @@ package homework.arch.checkoutservice.persistence;
 
 import homework.arch.checkoutservice.client.cart.dto.generated.CartDto;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -34,6 +36,7 @@ public class CheckoutEntity {
 
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     private LocalDateTime requestedTimestamp;

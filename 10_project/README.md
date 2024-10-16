@@ -39,11 +39,11 @@
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t authservice:3.0.1 .
+docker build --platform linux/amd64 -t authservice:3.1.3 .
 
-docker image tag authservice:3.0.1 gmnvnorlov/ms-arch-tasks-authservice:3.0.1
+docker image tag authservice:3.1.3 gmnvnorlov/ms-arch-tasks-authservice:3.1.3
 
-docker push gmnvnorlov/ms-arch-tasks-authservice:3.0.1
+docker push gmnvnorlov/ms-arch-tasks-authservice:3.1.3
 ```
 
 ### Сборка java приложения, docker образа profileservice (в папке profile-service)
@@ -51,11 +51,11 @@ docker push gmnvnorlov/ms-arch-tasks-authservice:3.0.1
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t profileservice:3.0.3 .
+docker build --platform linux/amd64 -t profileservice:3.1.1 .
 
-docker image tag profileservice:3.0.3 gmnvnorlov/ms-arch-tasks-profileservice:3.0.3
+docker image tag profileservice:3.1.1 gmnvnorlov/ms-arch-tasks-profileservice:3.1.1
 
-docker push gmnvnorlov/ms-arch-tasks-profileservice:3.0.3
+docker push gmnvnorlov/ms-arch-tasks-profileservice:3.1.1
 ```
 
 ### Сборка java приложения, docker образа checkoutservice (в папке checkout-service)
@@ -63,11 +63,11 @@ docker push gmnvnorlov/ms-arch-tasks-profileservice:3.0.3
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t checkoutservice:3.1.0 .
+docker build --platform linux/amd64 -t checkoutservice:3.2.2 .
 
-docker image tag checkoutservice:3.1.0 gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
+docker image tag checkoutservice:3.2.2 gmnvnorlov/ms-arch-tasks-checkoutservice:3.2.2
 
-docker push gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
+docker push gmnvnorlov/ms-arch-tasks-checkoutservice:3.2.2
 ```
 
 ### Сборка java приложения, docker образа orderservice (в папке order-service)
@@ -75,11 +75,11 @@ docker push gmnvnorlov/ms-arch-tasks-checkoutservice:3.1.0
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t orderservice:3.4.0 .
+docker build --platform linux/amd64 -t orderservice:3.5.2 .
 
-docker image tag orderservice:3.4.0 gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
+docker image tag orderservice:3.5.2 gmnvnorlov/ms-arch-tasks-orderservice:3.5.2
 
-docker push gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
+docker push gmnvnorlov/ms-arch-tasks-orderservice:3.5.2
 ```
 
 ### Сборка java приложения, docker образа cartservice (в папке cartservice-service)
@@ -87,11 +87,11 @@ docker push gmnvnorlov/ms-arch-tasks-orderservice:3.4.0
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t cartservice:3.0.1 .
+docker build --platform linux/amd64 -t cartservice:3.1.2 .
 
-docker image tag cartservice:3.0.1 gmnvnorlov/ms-arch-tasks-cartservice:3.0.1
+docker image tag cartservice:3.1.2 gmnvnorlov/ms-arch-tasks-cartservice:3.1.2
 
-docker push gmnvnorlov/ms-arch-tasks-cartservice:3.0.1
+docker push gmnvnorlov/ms-arch-tasks-cartservice:3.1.2
 ```
 
 ### Сборка java приложения, docker образа stockservice (в папке stockservice-service)
@@ -99,11 +99,11 @@ docker push gmnvnorlov/ms-arch-tasks-cartservice:3.0.1
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t stockservice:3.2.0 .
+docker build --platform linux/amd64 -t stockservice:3.3.1 .
 
-docker image tag stockservice:3.2.0 gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
+docker image tag stockservice:3.3.1 gmnvnorlov/ms-arch-tasks-stockservice:3.3.1
 
-docker push gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
+docker push gmnvnorlov/ms-arch-tasks-stockservice:3.3.1
 ```
 
 ### Сборка java приложения, docker образа notificationservice (в папке notificationservice-service)
@@ -111,11 +111,11 @@ docker push gmnvnorlov/ms-arch-tasks-stockservice:3.2.0
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t notificationservice:2.0.2 .
+docker build --platform linux/amd64 -t notificationservice:2.1.2 .
 
-docker image tag notificationservice:2.0.2 gmnvnorlov/ms-arch-tasks-notificationservice:2.0.2
+docker image tag notificationservice:2.1.2 gmnvnorlov/ms-arch-tasks-notificationservice:2.1.2
 
-docker push gmnvnorlov/ms-arch-tasks-notificationservice:2.0.2
+docker push gmnvnorlov/ms-arch-tasks-notificationservice:2.1.2
 
 ```
 ### Сборка java приложения, docker образа productservice (в папке productservice-service)
@@ -123,11 +123,11 @@ docker push gmnvnorlov/ms-arch-tasks-notificationservice:2.0.2
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t productservice:2.1.0 .
+docker build --platform linux/amd64 -t productservice:2.2.1 .
 
-docker image tag productservice:2.1.0 gmnvnorlov/ms-arch-tasks-productservice:2.1.0
+docker image tag productservice:2.2.1 gmnvnorlov/ms-arch-tasks-productservice:2.2.1
 
-docker push gmnvnorlov/ms-arch-tasks-productservice:2.1.0
+docker push gmnvnorlov/ms-arch-tasks-productservice:2.2.1
 ```
 
 ### Сборка java приложения, docker образа deliveryservice (в папке deliveryservice-service)
@@ -135,11 +135,11 @@ docker push gmnvnorlov/ms-arch-tasks-productservice:2.1.0
 ```
 ./mvnw clean package
 
-docker build --platform linux/amd64 -t deliveryservice:2.0.1 .
+docker build --platform linux/amd64 -t deliveryservice:2.1.2 .
 
-docker image tag deliveryservice:2.0.1 gmnvnorlov/ms-arch-tasks-deliveryservice:2.0.1
+docker image tag deliveryservice:2.1.2 gmnvnorlov/ms-arch-tasks-deliveryservice:2.1.2
 
-docker push gmnvnorlov/ms-arch-tasks-deliveryservice:2.0.1
+docker push gmnvnorlov/ms-arch-tasks-deliveryservice:2.1.2
 ```
 
 ### Для запуска приложения в k8s
@@ -185,6 +185,11 @@ default [values.yaml](https://github.com/bitnami/charts/blob/main/bitnami/postgr
 
 ```
 kubectl apply -f ./monitoring/manifests -n=monitoring
+```
+
+### Common Secrets
+```
+kubectl create secret generic common-secrets --from-literal=postgres_password='dUtRa7Ut' -n=otus
 ```
 
 ### Загрузка товаров

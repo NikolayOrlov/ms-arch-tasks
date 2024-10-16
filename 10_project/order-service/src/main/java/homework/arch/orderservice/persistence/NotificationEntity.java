@@ -1,6 +1,8 @@
 package homework.arch.orderservice.persistence;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,8 +30,10 @@ public class NotificationEntity {
 
     private String message;
 
+    @Enumerated(EnumType.STRING)
     private NotificationWay notificationWay;
 
+    @Enumerated(EnumType.STRING)
     private SendStatus sendStatus = SendStatus.TO_BE_SEND;
 
     public enum NotificationWay {

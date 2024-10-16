@@ -1,5 +1,13 @@
 spring:
   application.name: orderservice
+  jpa:
+    generate-ddl: true
+    properties.hibernate.default_schema: ${spring.application.name}
+  datasource:
+    url: jdbc:postgresql://${postgres_url}/${postgres_database}?currentSchema=${spring.jpa.properties.hibernate.default_schema}
+    driver-class-name: org.postgresql.Driver
+    username: ${postgres_username}
+    password: ${postgres_password}
 server:
   servlet:
     context-path: /api/orderservice
@@ -27,6 +35,6 @@ notification.url: notificationservice:8080/api/notificationservice
 delivery.url: deliveryservice:8080/api/deliveryservice
 logging:
   level.homework.arch: DEBUG
-  file.name: /var/log/application/application.log
+  file.name: /var/log/application/application_${POD_NAME}.log
 spring.cloud.discovery.client.composite-indicator.enabled: false
 spring.jackson.default-property-inclusion: NON_NULL

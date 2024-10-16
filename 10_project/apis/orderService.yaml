@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 3.4.0
+  version: 3.5.2
   title: Order service
   description: Выполнение заказа
 
