@@ -189,7 +189,7 @@ kubectl apply -f ./monitoring/manifests -n=monitoring
 
 ### Common Secrets
 ```
-kubectl create secret generic common-secrets --from-literal=postgres_password='dUtRa7Ut' -n=otus
+kubectl create secret generic common-secrets --from-literal=postgres_password='mypassword' -n=otus
 ```
 
 ### Загрузка товаров
